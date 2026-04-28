@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PropTech Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/gojs@2.3.11/release/go.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #eef2f3, #dfe9f3);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .dark-mode {
+            background: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .card {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .form-control {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+            border-color: #555 !important;
+        }
+
+        .dark-mode h2,
+        .dark-mode h5 {
+            color: #90caf9;
+        }
+
+        #myDiagramDiv {
+            width: 100%;
+            height: 400px;
+            background-color: rgba(255, 255, 255, 0);
+            border-radius: 12px;
+            border: 2px solid #dee2e6;
+        }
+
+        .dark-mode #myDiagramDiv {
+            border-color: #444;
+        }
+
+        /* Nuevos estilos para arreglar los Modales en Modo Oscuro */
+        .dark-mode .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-mode .modal-header {
+            border-bottom: 1px solid #444;
+        }
+
+        .dark-mode .modal-footer {
+            border-top: 1px solid #444;
+        }
+
+        .dark-mode .form-control::placeholder {
+            color: #aaaaaa !important;
+        }
+
+        .dark-mode .text-dark {
+            color: #e0e0e0 !important;
+        }
+
+        /* Sobrescribe el texto negro de Bootstrap */
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">🏢 PropTech 2026</a>
+            <button onClick="toggleDarkMode()" class="btn btn-outline-light btn-sm ms-auto">🌙 Modo Oscuro</button>
+        </div>
+    </nav>
+
+    <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong th:text="${mensajeExito}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong th:text="${mensajeError}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${mensajeInfo}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong th:text="${mensajeInfo}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="container-fluid px-4">
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="card p-3 text-center bg-success text-white">
+                    <h4>Total Inmuebles</h4>
+                    <h2 class="fw-bold" th:text="${totalInmuebles}">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <h5 class="mb-3 text-secondary">Acciones Rápidas</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal"
+                            data-bs-target="#modalInmueble">➕ Registrar Inmueble</button>
+                        <button class="btn btn-outline-secondary text-start w-100 mt-2" data-bs-toggle="modal"
+                            data-bs-target="#modalFiltros">🔍 Buscador inmueble</button>
+                        <button class="btn btn-outline-success text-start" data-bs-toggle="modal"
+                            data-bs-target="#modalCliente">👤 Registrar Cliente</button>
+                        <button class="btn btn-outline-info text-start" data-bs-toggle="modal"
+                            data-bs-target="#modalPedirReco">💡 Generar Recomendaciones</button>
+                        <form th:action="@{/analizar-comportamiento}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-outline-warning text-start w-100">⚠️ Analizar
+                                Comportamiento</button>
+                        </form>
+                        <form th:action="@{/generar-reportes}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-outline-dark text-start w-100">📊 Reportes y
+                                Rankings</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-3 border-danger mt-3">
+                <h5 class="text-danger mb-3">Bandeja de Alertas</h5>
+
+                <p th:if="${listaAlertas == null}" class="text-muted small">Haz clic en 'Analizar Comportamiento' para
+                    detectar anomalías en el sistema.</p>
+
+                <ul class="list-group list-group-flush">
+                    <li th:each="alerta : ${listaAlertas}" class="list-group-item list-group-item-danger small fw-bold"
+                        th:text="${alerta}"></li>
+                </ul>
+            </div>
+
+            <div class="card p-3 border-secondary mt-3">
+                <h5 class="text-secondary mb-3">🕒 Última Acción (Pila)</h5>
+                <p class="text-muted small border border-secondary p-2 rounded mb-2 text-break"
+                    th:text="${ultimaAccion}"></p>
+
+                <form th:action="@{/deshacer-accion}" method="post" th:if="${hayHistorial}">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm w-100">↩️ Deshacer Acción</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card h-100 p-0 overflow-hidden">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 text-secondary">Organización de Inmuebles por Precio (ABB)</h5>
+                </div>
+                <div id="myDiagramDiv"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        function initTree() {
+            const $ = go.GraphObject.make;
+            window.myDiagram = $(go.Diagram, "myDiagramDiv", {
+                layout: $(go.TreeLayout, {
+                    angle: 90, layerSpacing: 40, nodeSpacing: 60,
+                    compaction: go.TreeLayout.CompactionNone,
+                    alignment: go.TreeLayout.AlignmentCenterChildren,
+                    sorting: go.TreeLayout.SortingAscending,
+                    comparer: (a, b) => {
+                        const da = a.node.data.dir;
+                        const db = b.node.data.dir;
+                        if (da === 'L') return -1;
+                        if (db === 'L') return 1;
+                        return 0;
+                    }
+                })
+            });
+
+            // Hice el círculo un poco más ancho (60x60) para que quepa el precio
+            myDiagram.nodeTemplate =
+                $(go.Node, "Auto",
+                    $(go.Shape, "Circle", { stroke: "#dc3545", strokeWidth: 2.5, desiredSize: new go.Size(85, 85) },
+                        new go.Binding("fill", "", () => document.body.classList.contains("dark-mode") ? "#2a2a2a" : "white")),
+                    $(go.TextBlock, { margin: 2, font: "bold 11px Segoe UI", textAlign: "center" },
+                        new go.Binding("text"),
+                        new go.Binding("stroke", "", () => document.body.classList.contains("dark-mode") ? "white" : "#333"))
+                );
+
+            myDiagram.nodeTemplateMap.add("invisible",
+                $(go.Node, { selectable: false, pickable: false, opacity: 0, desiredSize: new go.Size(85, 85) })
+            );
+
+            myDiagram.linkTemplate =
+                $(go.Link, { routing: go.Link.Normal, corner: 5 },
+                    $(go.Shape, { strokeWidth: 1.5, stroke: "#bbb" },
+                        new go.Binding("visible", "toNode", (n) => n.data.category !== "invisible")
+                    )
+                );
+
+            const rawData = JSON.parse([[${ treeJsonData }]]);
+            const nodeDataArray = [];
+
+            rawData.forEach(node => {
+                nodeDataArray.push(node);
+                const children = rawData.filter(c => c.parent === node.key);
+                const hasLeft = children.some(c => c.dir === "L");
+                const hasRight = children.some(c => c.dir === "R");
+
+                if (children.length > 0) {
+                    if (!hasLeft) nodeDataArray.push({ key: node.key + "_L", parent: node.key, dir: "L", category: "invisible" });
+                    if (!hasRight) nodeDataArray.push({ key: node.key + "_R", parent: node.key, dir: "R", category: "invisible" });
+                }
+            });
+
+            myDiagram.model = new go.TreeModel(nodeDataArray);
+        }
+        window.addEventListener('DOMContentLoaded', initTree);
+    </script>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+            if (window.myDiagram) {
+                myDiagram.nodes.each(node => node.updateTargetBindings());
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        });
+    </script>
+
+    <script th:if="${mostrarModalRecos}">
+        window.addEventListener('DOMContentLoaded', () => {
+            var modalResultados = new bootstrap.Modal(document.getElementById('modalResultadosReco'));
+            modalResultados.show();
+        });
+    </script>
+
+    <script th:if="${mostrarModalReportes}">
+        window.addEventListener('DOMContentLoaded', () => {
+            var modalReportes = new bootstrap.Modal(document.getElementById('modalReportes'));
+            modalReportes.show();
+        });
+    </script>
+
+    <script th:if="${mostrarModalBusqueda}">
+        window.addEventListener('DOMContentLoaded', () => {
+            var modalBusqueda = new bootstrap.Modal(document.getElementById('modalResultadosBusqueda'));
+            modalBusqueda.show();
+        });
+    </script>
+</body>
+<div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Registrar Nuevo Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/registrar-cliente}" method="post">
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-md-6"><input type="text" name="identificacion" class="form-control"
+                                placeholder="Identificación" required></div>
+                        <div class="col-md-6"><input type="text" name="nombre" class="form-control"
+                                placeholder="Nombre Completo" required></div>
+                        <div class="col-md-6"><input type="email" name="correo" class="form-control"
+                                placeholder="Correo Electrónico" required></div>
+                        <div class="col-md-6"><input type="text" name="telefono" class="form-control"
+                                placeholder="Teléfono" required></div>
+                        <div class="col-md-6">
+                            <select name="tipoCliente" class="form-control" required>
+                                <option value="">Tipo de Cliente...</option>
+                                <option value="Comprador">Comprador</option>
+                                <option value="Arrendatario">Arrendatario</option>
+                                <option value="Inversionista">Inversionista</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6"><input type="number" name="presupuesto" class="form-control"
+                                placeholder="Presupuesto ($)" required></div>
+                        <div class="col-md-6">
+                            <select name="tipoInmuebleDeseado" class="form-control" required>
+                                <option value="Apartamento">Apartamento</option>
+                                <option value="Casa">Casa</option>
+                                <option value="LocalComercial">Local Comercial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6"><input type="number" name="minHabitaciones" class="form-control"
+                                placeholder="Mínimo de Habitaciones" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalInmueble" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content text-dark">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Registrar Nuevo Inmueble</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/registrar-inmueble}" method="post">
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-md-4"><input type="text" name="codigo" class="form-control"
+                                placeholder="Código (Ej: APT-003)" required></div>
+                        <div class="col-md-8"><input type="text" name="direccion" class="form-control"
+                                placeholder="Dirección" required></div>
+                        <div class="col-md-6"><input type="text" name="ciudad" class="form-control" placeholder="Ciudad"
+                                required></div>
+                        <div class="col-md-6"><input type="text" name="barrioZona" class="form-control"
+                                placeholder="Barrio / Zona" required></div>
+
+                        <div class="col-md-4">
+                            <select name="finalidad" class="form-control" required>
+                                <option value="Venta">Venta</option>
+                                <option value="Arriendo">Arriendo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4"><input type="number" name="precio" class="form-control"
+                                placeholder="Precio Total ($)" required></div>
+                        <div class="col-md-4"><input type="number" step="0.1" name="area" class="form-control"
+                                placeholder="Área (m²)" required></div>
+
+                        <div class="col-md-4"><input type="number" name="habitaciones" class="form-control"
+                                placeholder="Habitaciones" required></div>
+                        <div class="col-md-4"><input type="number" name="banos" class="form-control" placeholder="Baños"
+                                required></div>
+                        <div class="col-md-4">
+                            <select name="estado" class="form-control" required>
+                                <option value="Nuevo">Nuevo</option>
+                                <option value="Usado">Usado</option>
+                                <option value="Remodelado">Remodelado</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Inmueble</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPedirReco" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content text-dark">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Generar Recomendación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/generar-recomendaciones}" method="post">
+                <div class="modal-body">
+                    <label class="form-label text-secondary">ID del Cliente:</label>
+                    <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info text-white w-100">Generar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalResultadosReco" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark border-info">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">💡 Sugerencias para: <span th:text="${clienteReco}"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary small">El sistema analizó las zonas de interés, historial de visitas y
+                    presupuesto cruzando el Grafo y el Árbol Binario.</p>
+                <ul class="list-group">
+                    <li th:each="reco : ${listaSugerencias}" class="list-group-item list-group-item-info"
+                        th:text="${reco}"></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalReportes" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content text-dark">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">📊 Panel de Inteligencia de Negocio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="asesores-tab" data-bs-toggle="tab"
+                            data-bs-target="#asesores" type="button">Top Asesores</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="zonas-tab" data-bs-toggle="tab" data-bs-target="#zonas"
+                            type="button">Actividad por Zonas</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="reportTabsContent">
+                    <div class="tab-pane fade show active" id="asesores">
+                        <p class="text-muted small">Ordenados por efectividad de cierre (Lógica de Árbol Binario).</p>
+                        <ul class="list-group list-group-flush">
+                            <li th:each="asesor : ${listaRankingAsesores}" class="list-group-item" th:text="${asesor}">
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="zonas">
+                        <p class="text-muted small">Zonas con mayor flujo de visitas (Análisis de Listas).</p>
+                        <ul class="list-group list-group-flush">
+                            <li th:each="zona : ${listaActividadZonas}" class="list-group-item" th:text="${zona}"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Reporte</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title">Filtros de Búsqueda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/buscar-inmuebles}" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Precio Mínimo</label>
+                            <input type="number" name="precioMin" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Precio Máximo</label>
+                            <input type="number" name="precioMax" class="form-control" value="500000000">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small">Zona / Barrio</label>
+                            <input type="text" name="zona" class="form-control" placeholder="Ej: Norte" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small">Mínimo de Habitaciones</label>
+                            <input type="number" name="minHabitaciones" class="form-control" value="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-secondary w-100">Buscar Coincidencias</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalResultadosBusqueda" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark border-secondary">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title">🔎 Resultados de la Búsqueda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li th:each="res : ${listaResultadosBusqueda}" class="list-group-item list-group-item-secondary"
+                        th:text="${res}"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
