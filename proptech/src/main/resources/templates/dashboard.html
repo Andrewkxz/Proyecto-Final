@@ -123,18 +123,139 @@
                             data-bs-target="#modalFiltros">🔍 Buscador inmueble</button>
                         <button class="btn btn-outline-success text-start" data-bs-toggle="modal"
                             data-bs-target="#modalCliente">👤 Registrar Cliente</button>
-                        <button class="btn btn-outline-info text-start" data-bs-toggle="modal"
+                        <button class="btn btn-outline-dark text-start mt-2 w-100" data-bs-toggle="modal"
+                            data-bs-target="#modalAsesor">👔 Registrar Asesor</button>
+                        <button class="btn btn-outline-success text-start w-100 mt-2 text-dark border-success"
+                            data-bs-toggle="modal" data-bs-target="#modalOperacion"
+                            style="background-color: #d1e7dd;">🤝 Registrar Operación</button>
+                        <button class="btn btn-outline-primary text-start w-100 mt-2 text-primary border-primary"
+                            data-bs-toggle="modal" data-bs-target="#modalVisita" style="background-color: #cce5ff;">📅
+                            Agendar Visita</button>
+                        <button class="btn btn-outline-info text-start mt-2" data-bs-toggle="modal"
                             data-bs-target="#modalPedirReco">💡 Generar Recomendaciones</button>
+
+                        <form th:action="@{/ver-perfil-cliente}" method="post" class="mt-2">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="idCliente" class="form-control"
+                                    placeholder="ID Cliente (Perfil)" required>
+                                <button class="btn btn-outline-dark" type="submit">👤 Ver Favoritos</button>
+                            </div>
+                        </form>
+                        <form th:action="@{/marcar-favorito}" method="post"
+                            class="mt-2 border border-warning p-2 rounded" style="background-color: #fff9e6;">
+                            <label class="form-label small fw-bold text-warning mb-1"
+                                style="color: #d39e00 !important;">⭐ Añadir Inmueble a Favoritos</label>
+                            <div class="input-group input-group-sm mb-1">
+                                <input type="text" name="idCliente" class="form-control"
+                                    placeholder="ID Cliente (Ej: C-001)" required>
+                                <input type="text" name="codigoInmueble" class="form-control"
+                                    placeholder="ID Inmueble (Ej: APT-001)" required>
+                            </div>
+                            <button class="btn btn-warning btn-sm w-100 text-dark fw-bold" type="submit">Guardar
+                                Favorito</button>
+                        </form>
+
+                        <form th:action="@{/atender-visita}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-primary text-start w-100 text-white">✅ Atender
+                                Siguiente Visita (VIP)</button>
+                        </form>
+
                         <form th:action="@{/analizar-comportamiento}" method="post" class="mt-2">
                             <button type="submit" class="btn btn-outline-warning text-start w-100">⚠️ Analizar
                                 Comportamiento</button>
                         </form>
+
                         <form th:action="@{/generar-reportes}" method="post" class="mt-2">
                             <button type="submit" class="btn btn-outline-dark text-start w-100">📊 Reportes y
                                 Rankings</button>
                         </form>
                     </div>
                 </div>
+            </div>
+
+            <div class="card p-3 mt-3 border-danger">
+                <h5 class="text-danger mb-3">⚙️ Gestión de Registros (CRUD)</h5>
+
+                <form th:action="@{/eliminar-inmueble}" method="post" class="mb-2">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="codigo" class="form-control border-danger"
+                            placeholder="Código Inmueble a borrar" required>
+                        <button class="btn btn-outline-danger" type="submit">🗑️ Borrar</button>
+                    </div>
+                </form>
+
+                <form th:action="@{/eliminar-cliente}" method="post">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="idCliente" class="form-control border-danger"
+                            placeholder="ID Cliente a borrar" required>
+                        <button class="btn btn-outline-danger" type="submit">🗑️ Borrar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card p-3 mt-3 border-dark">
+                <h5 class="text-dark mb-3">🗂️ Utilidades Avanzadas</h5>
+
+                <label class="form-label small text-muted mb-1">Agrupar propiedades por ciudad</label>
+                <form th:action="@{/consultar-ciudad}" method="post" class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="ciudad" class="form-control border-dark" placeholder="Ej: Armenia"
+                            required>
+                        <button class="btn btn-outline-dark" type="submit">Agrupar</button>
+                    </div>
+                </form>
+
+                <label class="form-label small text-muted mb-1 mt-2">Cola de tareas administrativas</label>
+
+                <div class="p-2 mb-2 rounded bg-light border border-dark small">
+                    <strong>Próxima tarea:</strong> <span th:text="${siguienteTarea}" class="text-primary"></span>
+                </div>
+
+                <form th:action="@{/agregar-tarea}" method="post" class="mb-2">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="tarea" class="form-control border-dark"
+                            placeholder="Describir nueva tarea..." required>
+                        <button class="btn btn-dark" type="submit">➕ Encolar</button>
+                    </div>
+                </form>
+
+                <form th:action="@{/atender-tarea}" method="post">
+                    <button class="btn btn-outline-success btn-sm w-100 fw-bold" type="submit">✅ Resolver Siguiente
+                        Tarea</button>
+                </form>
+
+                <label class="form-label small text-muted mb-1 mt-2">Panel Gerencial</label>
+                <form th:action="@{/panel-gerencial}" method="post">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="zonaSimulacion" class="form-control border-danger"
+                            placeholder="Zona a simular (Ej: Norte)" required>
+                        <button class="btn btn-danger fw-bold" type="submit">📈 Panel Gerencial</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card p-3 mt-3 border-primary">
+                <h5 class="text-primary mb-3">📅 Gestión de Visitas</h5>
+
+                <form th:action="@{/cancelar-visita}" method="post" class="mb-2">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="idVisita" class="form-control border-primary"
+                            placeholder="ID Visita a cancelar" required>
+                        <button class="btn btn-outline-danger" type="submit">❌ Cancelar</button>
+                    </div>
+                </form>
+
+                <form th:action="@{/reprogramar-visita}" method="post">
+                    <div class="input-group input-group-sm mb-1">
+                        <input type="text" name="idVisita" class="form-control border-primary" placeholder="ID Visita"
+                            required>
+                    </div>
+                    <div class="input-group input-group-sm mb-1">
+                        <input type="date" name="nuevaFecha" class="form-control border-primary" required>
+                        <input type="time" name="nuevaHora" class="form-control border-primary" required>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" type="submit">🔄 Reprogramar</button>
+                </form>
             </div>
 
             <div class="card p-3 border-danger mt-3">
@@ -266,6 +387,21 @@
             modalBusqueda.show();
         });
     </script>
+
+    <script th:if="${mostrarModalPerfil}">
+        window.addEventListener('DOMContentLoaded', () => {
+            var modalPerfil = new bootstrap.Modal(document.getElementById('modalPerfil'));
+            modalPerfil.show();
+        });
+    </script>
+
+    <script th:if="${mostrarModalGerencial}">
+        window.addEventListener('DOMContentLoaded', () => {
+            var modalGerencial = new bootstrap.Modal(document.getElementById('modalGerencial'));
+            modalGerencial.show();
+        });
+    </script>
+
 </body>
 <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -357,6 +493,14 @@
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label small">Asesor Responsable</label>
+                    <select name="idAsesor" class="form-control" required>
+                        <option value="">Seleccione un asesor...</option>
+                        <option th:each="asesor : ${listaAsesoresActivos}" th:value="${asesor.id}"
+                            th:text="${asesor.nombre} + ' - ' + ${asesor.especialidadZona}"></option>
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -498,6 +642,218 @@
                     <li th:each="res : ${listaResultadosBusqueda}" class="list-group-item list-group-item-secondary"
                         th:text="${res}"></li>
                 </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalOperacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark border-success">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">🤝 Registrar Cierre / Operación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/registrar-operacion}" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">ID Operación</label>
+                            <input type="text" name="idOperacion" class="form-control" placeholder="Ej: OP-001"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Tipo de Operación</label>
+                            <select name="tipoOperacion" class="form-control" required>
+                                <option value="Venta">Venta</option>
+                                <option value="Arriendo">Arriendo</option>
+                                <option value="Renovación de Contrato">Renovación de Contrato</option>
+                                <option value="Cancelación de Negocio">Cancelación de Negocio</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">ID del Cliente</label>
+                            <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Código del Inmueble</label>
+                            <input type="text" name="codigoInmueble" class="form-control" placeholder="Ej: APT-001"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Valor Acordado ($)</label>
+                            <input type="number" name="valorAcordado" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Comisión (%)</label>
+                            <input type="number" step="0.1" name="porcentajeComision" class="form-control"
+                                placeholder="Ej: 3.5" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Cerrar Negocio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVisita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">📅 Agendar Visita a Inmueble</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/agendar-visita}" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">ID de la Visita</label>
+                            <input type="text" name="idVisita" class="form-control" placeholder="Ej: VIS-001" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">ID del Cliente</label>
+                            <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Código del Inmueble</label>
+                            <input type="text" name="codigoInmueble" class="form-control" placeholder="Ej: APT-001"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Fecha</label>
+                            <input type="date" name="fecha" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Hora</label>
+                            <input type="time" name="hora" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small text-danger fw-bold">Nivel de Urgencia (1 = Normal, 5 =
+                                VIP)</label>
+                            <input type="number" name="nivelUrgencia" class="form-control border-danger" min="1" max="5"
+                                value="1" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agendar en Cola</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content text-dark border-warning">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">⭐ Favoritos de: <span th:text="${nombreClientePerfil}"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p th:if="${#lists.isEmpty(listaFavoritos)}" class="text-muted small">Este cliente aún no tiene
+                    favoritos.</p>
+                <ul class="list-group list-group-flush">
+                    <li th:each="fav : ${listaFavoritos}" class="list-group-item small" th:text="${fav}"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAsesor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark border-dark">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">👔 Registrar Nuevo Asesor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/registrar-asesor}" method="post">
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-md-6"><input type="text" name="identificacion" class="form-control"
+                                placeholder="ID Asesor" required></div>
+                        <div class="col-md-6"><input type="text" name="nombre" class="form-control" placeholder="Nombre"
+                                required></div>
+                        <div class="col-md-6"><input type="text" name="contacto" class="form-control"
+                                placeholder="Teléfono/Contacto" required></div>
+                        <div class="col-md-6">
+                            <select name="especialidad" class="form-control" required>
+                                <option value="">Especialidad / Zona...</option>
+                                <option value="Norte">Norte</option>
+                                <option value="Centro">Centro</option>
+                                <option value="Sur">Sur</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Guardar Asesor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGerencial" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content text-dark border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">📈 Panel Gerencial y Comportamientos</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <ul class="nav nav-tabs" id="gerencialTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vips"
+                            type="button">Clientes VIP (Alta Prioridad)</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ranking"
+                            type="button">Ranking de Zonas</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-simulacion"
+                            type="button">Simulación de Demanda</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content p-3 border border-top-0 rounded-bottom">
+                    <div class="tab-pane fade show active" id="tab-vips">
+                        <p class="text-muted small">Algoritmo: Clientes con estado activo, más de 3 favoritos y más de 3
+                            consultas.</p>
+                        <ul class="list-group list-group-flush">
+                            <li th:each="vip : ${listaVips}" class="list-group-item fw-bold text-success"
+                                th:text="${vip}"></li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-ranking">
+                        <p class="text-muted small">Basado en el conteo histórico de visitas por inmueble.</p>
+                        <ul class="list-group list-group-flush">
+                            <li th:each="zona : ${listaRankingZonas}" class="list-group-item" th:text="${zona}"></li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-simulacion">
+                        <p class="text-muted small">Proyección de crecimiento basada en densidad de visitas vs oferta
+                            total.</p>
+                        <div class="alert alert-info fw-bold text-center fs-5" th:text="${resultadoSimulacion}"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Panel</button>
             </div>
         </div>
     </div>

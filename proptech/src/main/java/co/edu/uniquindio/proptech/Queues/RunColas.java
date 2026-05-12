@@ -7,11 +7,11 @@ public class RunColas {
 		
 		Queue<Integer> cola= new Queue<>();
 		
-		cola.enqueue(1);
-		cola.enqueue(2);
-		cola.enqueue(3);
+		cola.offer(1);
+		cola.offer(2);
+		cola.offer(3);
 		
-		cola.dequeue();
+		cola.poll();
 		
 		cola.print();
 		

@@ -16,7 +16,7 @@ public class Queue<T> {
 	 * Add element to the end of the Queue
 	 * @param data element to save in the Queue
 	 */
-	public void enqueue(T data) {
+	public void offer(T data) {
 		
 		Node<T> node = new Node<>(data);
 		
@@ -34,7 +34,7 @@ public class Queue<T> {
 	 * Return and removes the element at the front of the Queue
 	 * @return first element of the Queue
 	 */
-	public T dequeue() {
+	public T poll() {
 		
 		if(isEmpty()) {
 			throw new RuntimeException("Queue is Empty");
@@ -50,6 +50,13 @@ public class Queue<T> {
 		size--;
 		return data;
 	}
+
+	public T peek() {
+		if(isEmpty()) {
+			throw new RuntimeException("Queue is Empty");
+		}
+		return firstNode.getData();
+	}
 	
 	/**
 	 * Verifies if the Queue is empty
@@ -64,7 +71,7 @@ public class Queue<T> {
 	/**
 	 * clean completely the Queue
 	 */
-	public void cleanQueue() {
+	public void clear() {
 		firstNode = lastNode = null;
 		size = 0;
 	}
@@ -86,7 +93,7 @@ public class Queue<T> {
 	/**
 	 * @return size of the Queue
 	 */
-	public int getSize() {
+	public int size() {
 		return size;
 	}
 	
@@ -100,10 +107,10 @@ public class Queue<T> {
 		Queue<T> clon1 = clone();
 		Queue<T> clon2 = queue.clone();
 		
-		if(clon1.getSize() == clon2.getSize()) {
+		if(clon1.size() == clon2.size()) {
 			
 			while( !clon1.isEmpty() ) {				
-				if( !clon1.dequeue().equals( clon2.dequeue() ) ) {
+				if( !clon1.poll().equals( clon2.poll() ) ) {
 					return false;
 				}				
 			}
@@ -134,7 +141,7 @@ public class Queue<T> {
 		Node<T> aux = firstNode;
 		
 		while(aux!=null) {
-			newQueue.enqueue( aux.getData() );
+			newQueue.offer( aux.getData() );
 			aux = aux.getNext();
 		}
 		

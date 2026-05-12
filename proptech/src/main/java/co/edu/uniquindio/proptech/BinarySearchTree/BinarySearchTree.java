@@ -188,15 +188,15 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
 
         Queue<Node<T>> queue = new Queue<>();
-        queue.enqueue(root);
+        queue.offer(root);
         while (!queue.isEmpty()) {
-            Node<T> current = queue.dequeue();
+            Node<T> current = queue.poll();
             result.addLast(current.getData());
             if (current.getLeft() != null) {
-                queue.enqueue(current.getLeft());
+                queue.offer(current.getLeft());
             }
             if (current.getRight() != null) {
-                queue.enqueue(current.getRight());
+                queue.offer(current.getRight());
             }
         }
         return result;

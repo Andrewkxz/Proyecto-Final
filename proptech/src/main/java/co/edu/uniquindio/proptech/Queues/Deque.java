@@ -10,7 +10,7 @@ public class Deque<T> extends Queue<T>{
 	// add element to the end of the Deque
 	public void addLast(T data)
 	{
-		enqueue(data); // inherited method from Queue
+		offer(data); // inherited method from Queue
 	}
 	
 	// add element to the front of the Deque
@@ -28,21 +28,21 @@ public class Deque<T> extends Queue<T>{
 	
 	
 	// removes element from the front of the Deque
-	public T removesFront() 
+	public T removeFront() 
 	{
-		T value = dequeue();
+		T value = poll();
 		return value; // inherited method from Queue
 	}
 	
 	// removes element from the end of the Deque
 	// it's necessary to traverse the Deque until the node before the last one
-	public T removeEnd() throws Exception
+	public T removeLast() throws Exception
 	{
 		T aux;
 		if (!isEmpty())
 		{
 			if (firstNode == lastNode) // deque has only one node
-				aux = dequeue();
+				aux = poll();
 			else
 			{
 				Node<T> node = firstNode;

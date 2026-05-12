@@ -13,7 +13,7 @@ public class Asesor implements Comparable<Asesor>{
     private int numeroCierres; // Cantidad de operaciones exitosas
 
     private LinkedSimpleList<Inmueble> inmueblesAsignados;
-    private Queue<Visita> agendaVisitas;
+    private Queue<Visita> visitasAgendadas;
     private DoublyLinkedList<Operacion> cierresRealizados;
 
     public Asesor(String id, String nombre, String contacto, String especialidadZona){
@@ -25,7 +25,7 @@ public class Asesor implements Comparable<Asesor>{
         this.numeroCierres = 0;
 
         this.inmueblesAsignados = new LinkedSimpleList<>();
-        this.agendaVisitas = new Queue<>();
+        this.visitasAgendadas = new Queue<>();
         this.cierresRealizados = new DoublyLinkedList<>();
     }
 
@@ -34,7 +34,7 @@ public class Asesor implements Comparable<Asesor>{
     }
 
     public void agendarVisita(Visita visita){
-        this.agendaVisitas.enqueue(visita);
+        this.visitasAgendadas.offer(visita);
         this.cargaTrabajoActiva++;
         if(this.cargaTrabajoActiva > 15){
             System.out.println("ALERTA: El asesor " + this.nombre + "tiene sobrecarga excesiva de atención.");
@@ -42,9 +42,9 @@ public class Asesor implements Comparable<Asesor>{
     }
 
     public Visita atenderSiguienteVisita(){
-        if(!agendaVisitas.isEmpty()){
+        if(!visitasAgendadas.isEmpty()){
             this.cargaTrabajoActiva--;
-            return agendaVisitas.dequeue();
+            return visitasAgendadas.poll();
         }
         return null;
     }
@@ -77,4 +77,14 @@ public class Asesor implements Comparable<Asesor>{
     public int getNumeroCierres() {
         return numeroCierres;
     }
+    public LinkedSimpleList<Inmueble> getInmueblesAsignados() {
+        return inmueblesAsignados;
+    }
+    public Queue<Visita> getVisitasAgendadas() {
+        return visitasAgendadas;
+    }
+    public DoublyLinkedList<Operacion> getCierresRealizados() {
+        return cierresRealizados;
+    }
+    
 }

@@ -14,18 +14,19 @@ public class Visita implements Comparable<Visita>{
     private LocalDate fecha;
     private String hora;
     private Asesor asesorAsignado;
+    private String idVisita;
     private String estadoVisita;
     private String observaciones;
-    private int prioridad; // 1(Baja) a 5(Alta)
+    private int nivelUrgencia; // 1(Normal) a 5(VIP) - Alta prioridad
 
-    public Visita(Cliente cliente, Inmueble inmueble, LocalDate fecha, String hora, Asesor asesorAsignado, int prioridad){
+    public Visita(String idVisita, Cliente cliente, Inmueble inmueble, LocalDate fecha, String hora, Asesor asesorAsignado, int nivelUrgencia){
+        this.idVisita = idVisita;
         this.cliente = cliente;
         this.inmueble = inmueble;
         this.fecha = fecha;
         this.hora = hora;
         this.asesorAsignado = asesorAsignado;
-        this.prioridad = prioridad;
-
+        this.nivelUrgencia = nivelUrgencia;
         this.estadoVisita = ESTADO_PENDIENTE;
         this.observaciones = "";
     }
@@ -49,11 +50,11 @@ public class Visita implements Comparable<Visita>{
         this.estadoVisita = ESTADO_REPROGRAMADA;
         this.fecha = nuevaFecha;
         this.hora = nuevaHora;
-        this.observaciones = "Visita reprogramada del " + this.fecha + "a nueva fecha.";
+        this.observaciones = "Visita reprogramada del " + this.fecha + " a nueva fecha " + nuevaFecha;
     }
     @Override
     public int compareTo(Visita otraVisita) {
-        return Integer.compare(otraVisita.prioridad, this.prioridad);
+        return Integer.compare(otraVisita.getNivelUrgencia(), this.getNivelUrgencia());
     }
     public Cliente getCliente() {
         return cliente;
@@ -64,8 +65,14 @@ public class Visita implements Comparable<Visita>{
     public LocalDate getFecha() {
         return fecha;
     }
+    public void setFecha(LocalDate fecha){
+        this.fecha = fecha;
+    }
     public String getHora() {
         return hora;
+    }
+    public void setHora(String hora){
+        this.hora = hora;
     }
     public Asesor getAsesorAsignado() {
         return asesorAsignado;
@@ -73,10 +80,16 @@ public class Visita implements Comparable<Visita>{
     public String getEstadoVisita() {
         return estadoVisita;
     }
+    public void setEstadoVisita(String estadoVisita) {
+        this.estadoVisita = estadoVisita;
+    }
     public String getObservaciones() {
         return observaciones;
     }
-    public int getPrioridad() {
-        return prioridad;
+    public int getNivelUrgencia() {
+        return nivelUrgencia;
+    }
+    public String getIdVisita() {
+        return idVisita;
     }
 }

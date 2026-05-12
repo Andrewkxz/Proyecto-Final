@@ -31,7 +31,7 @@ public class Alerta implements Comparable<Alerta>{
 
     @Override
     public int compareTo(Alerta otraAlerta) {
-        return Integer.compare(otraAlerta.nivelPrioridad, this.nivelPrioridad);
+        return Integer.compare(otraAlerta.getNivelPrioridad(), this.getNivelPrioridad());
     }
 
     public String getIdAlerta() {

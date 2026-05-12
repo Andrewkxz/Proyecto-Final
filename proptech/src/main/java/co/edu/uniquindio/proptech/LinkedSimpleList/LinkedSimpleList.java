@@ -102,7 +102,7 @@ public class LinkedSimpleList<T extends Comparable<T>> implements Iterable<T> {
     return index >= 0 && index < size;
    }
 
-   private boolean isEmpty() {
+   public boolean isEmpty() {
         return first == null;
     }
 

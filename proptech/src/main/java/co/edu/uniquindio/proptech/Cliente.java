@@ -2,6 +2,7 @@ package co.edu.uniquindio.proptech;
 
 import co.edu.uniquindio.proptech.CircularLinkedList.CircularLinkedList;
 import co.edu.uniquindio.proptech.DoublyLinkedList.DoublyLinkedList;
+import co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList;
 
 public class Cliente implements Comparable<Cliente>{
     private String id;
@@ -19,6 +20,7 @@ public class Cliente implements Comparable<Cliente>{
     private DoublyLinkedList<Inmueble> historialConsultas;
     private DoublyLinkedList<Inmueble> inmueblesDescartados;
     private DoublyLinkedList<Inmueble> inmueblesVisitados;
+    private LinkedSimpleList<Inmueble> inmueblesNegociados;
 
     public Cliente(String id, String nombre, String correo, String telefono, String tipoCliente, double presupuesto, String tipoInmuebleDeseado, int minHabitaciones){
         this.id = id;
@@ -36,6 +38,7 @@ public class Cliente implements Comparable<Cliente>{
         this.historialConsultas = new DoublyLinkedList<>();
         this.inmueblesDescartados = new DoublyLinkedList<>();
         this.inmueblesVisitados = new DoublyLinkedList<>();
+        this.inmueblesNegociados = new LinkedSimpleList<>();
     }
 
     public void agregarZonaInteres(String zona){
@@ -58,9 +61,13 @@ public class Cliente implements Comparable<Cliente>{
         this.inmueblesVisitados.addLast(inmueble);
     }
 
+    public void registrarInmuebleNegociado(Inmueble inmueble){
+        this.inmueblesNegociados.addLast(inmueble);
+    }
+
     @Override
     public int compareTo(Cliente otroCliente) {
-        return Double.compare(this.presupuesto, otroCliente.presupuesto);
+        return Double.compare(this.presupuesto, otroCliente.getPresupuesto());
     }
 
     public String getId() {
@@ -80,6 +87,9 @@ public class Cliente implements Comparable<Cliente>{
     }
     public double getPresupuesto() {
         return presupuesto;
+    }
+    public void setPresupuesto(double presupuesto) {
+        this.presupuesto = presupuesto;
     }
     public String getTipoInmuebleDeseado() {
         return tipoInmuebleDeseado;
@@ -101,5 +111,11 @@ public class Cliente implements Comparable<Cliente>{
     }
     public DoublyLinkedList<Inmueble> getHistorialConsultas() {
         return historialConsultas;
-    }    
+    }
+    public LinkedSimpleList<Inmueble> getInmueblesNegociados() {
+        return inmueblesNegociados;
+    }
+    public DoublyLinkedList<Inmueble> getInmueblesVisitados() {
+        return inmueblesVisitados;
+    }
 }

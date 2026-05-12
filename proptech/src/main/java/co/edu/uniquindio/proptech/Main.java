@@ -37,7 +37,7 @@ public class Main {
         plataforma.conectarClientesConInmuebles(cliente1.getId(), apt1.getCodigo());
 
         for(int i = 0; i < 12; i++){
-            Visita v = new Visita(cliente2, loc1, LocalDate.now(), "10:00 AM", asesor2, 1);
+            Visita v = new Visita("VIS-TEST" + i, cliente2, loc1, LocalDate.now(), "10:00 AM", asesor2, 1);
             loc1.registrarVisita(v);
         }
         System.out.println("Interacciones y visitas simuladas.");

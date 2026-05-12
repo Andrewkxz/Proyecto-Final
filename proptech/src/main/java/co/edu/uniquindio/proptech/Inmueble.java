@@ -78,6 +78,10 @@ public abstract class Inmueble implements Comparable<Inmueble>{
         return estado;
     }
 
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
     public Asesor getAsesorResponsable() {
         return asesorResponsable;
     }
