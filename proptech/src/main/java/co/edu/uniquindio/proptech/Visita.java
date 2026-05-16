@@ -17,10 +17,10 @@ public class Visita implements Comparable<Visita>{
     private String idVisita;
     private String estadoVisita;
     private String observaciones;
-    private int nivelUrgencia; // 1(Normal) a 5(VIP) - Alta prioridad
+    private int nivelUrgencia; 
 
     public Visita(String idVisita, Cliente cliente, Inmueble inmueble, LocalDate fecha, String hora, Asesor asesorAsignado, int nivelUrgencia){
-        this.idVisita = idVisita;
+        this.idVisita = idVisita; 
         this.cliente = cliente;
         this.inmueble = inmueble;
         this.fecha = fecha;
@@ -31,21 +31,16 @@ public class Visita implements Comparable<Visita>{
         this.observaciones = "";
     }
 
-    public void confirmarVisita(){
-        this.estadoVisita = ESTADO_CONFIRMADA;
-    }
-
+    public void confirmarVisita(){ this.estadoVisita = ESTADO_CONFIRMADA; }
     public void registrarRealizacion(String observaciones){
         this.estadoVisita = ESTADO_REALIZADA;
         this.observaciones = observaciones;
         this.inmueble.registrarVisita(this);
     }
-
     public void cancelarVisita(String motivo){
         this.estadoVisita = ESTADO_CANCELADA;
         this.observaciones = "Visita cancelada. Motivo: " + motivo;
     }
-
     public void reprogramarVisita(LocalDate nuevaFecha, String nuevaHora){
         this.estadoVisita = ESTADO_REPROGRAMADA;
         this.fecha = nuevaFecha;
@@ -56,40 +51,18 @@ public class Visita implements Comparable<Visita>{
     public int compareTo(Visita otraVisita) {
         return Integer.compare(otraVisita.getNivelUrgencia(), this.getNivelUrgencia());
     }
-    public Cliente getCliente() {
-        return cliente;
-    }
-    public Inmueble getInmueble() {
-        return inmueble;
-    }
-    public LocalDate getFecha() {
-        return fecha;
-    }
-    public void setFecha(LocalDate fecha){
-        this.fecha = fecha;
-    }
-    public String getHora() {
-        return hora;
-    }
-    public void setHora(String hora){
-        this.hora = hora;
-    }
-    public Asesor getAsesorAsignado() {
-        return asesorAsignado;
-    }
-    public String getEstadoVisita() {
-        return estadoVisita;
-    }
-    public void setEstadoVisita(String estadoVisita) {
-        this.estadoVisita = estadoVisita;
-    }
-    public String getObservaciones() {
-        return observaciones;
-    }
-    public int getNivelUrgencia() {
-        return nivelUrgencia;
-    }
-    public String getIdVisita() {
-        return idVisita;
-    }
+
+    // Getters y Setters
+    public Cliente getCliente() { return cliente; }
+    public Inmueble getInmueble() { return inmueble; }
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha){ this.fecha = fecha; }
+    public String getHora() { return hora; }
+    public void setHora(String hora){ this.hora = hora; }
+    public Asesor getAsesorAsignado() { return asesorAsignado; }
+    public String getEstadoVisita() { return estadoVisita; }
+    public void setEstadoVisita(String estadoVisita) { this.estadoVisita = estadoVisita; }
+    public String getObservaciones() { return observaciones; }
+    public int getNivelUrgencia() { return nivelUrgencia; }
+    public String getIdVisita() { return idVisita; }
 }

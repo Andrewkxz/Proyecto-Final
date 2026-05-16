@@ -21,6 +21,7 @@ public class Cliente implements Comparable<Cliente>{
     private DoublyLinkedList<Inmueble> inmueblesDescartados;
     private DoublyLinkedList<Inmueble> inmueblesVisitados;
     private LinkedSimpleList<Inmueble> inmueblesNegociados;
+    private DoublyLinkedList<Inmueble> intenciones;
 
     public Cliente(String id, String nombre, String correo, String telefono, String tipoCliente, double presupuesto, String tipoInmuebleDeseado, int minHabitaciones){
         this.id = id;
@@ -39,6 +40,7 @@ public class Cliente implements Comparable<Cliente>{
         this.inmueblesDescartados = new DoublyLinkedList<>();
         this.inmueblesVisitados = new DoublyLinkedList<>();
         this.inmueblesNegociados = new LinkedSimpleList<>();
+        this.intenciones = new DoublyLinkedList<>();
     }
 
     public void agregarZonaInteres(String zona){
@@ -63,6 +65,10 @@ public class Cliente implements Comparable<Cliente>{
 
     public void registrarInmuebleNegociado(Inmueble inmueble){
         this.inmueblesNegociados.addLast(inmueble);
+    }
+
+    public void registrarIntencion(Inmueble inmueble){
+        this.intenciones.addLast(inmueble);
     }
 
     @Override
@@ -117,5 +123,11 @@ public class Cliente implements Comparable<Cliente>{
     }
     public DoublyLinkedList<Inmueble> getInmueblesVisitados() {
         return inmueblesVisitados;
+    }
+    public DoublyLinkedList<Inmueble> getIntenciones(){
+        return intenciones;
+    }
+    public DoublyLinkedList<Inmueble> getInmueblesDescartados(){
+        return inmueblesDescartados;
     }
 }
