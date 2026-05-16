@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>AURA | Arquitectura para la vida</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "secondary-fixed-dim": "#ccc5be",
+                    "on-tertiary-fixed": "#1c1c19",
+                    "tertiary": "#22221f",
+                    "primary": "#28211a",
+                    "surface": "#fcf9f8",
+                    "primary-container": "#3e362e",
+                    "surface-container-high": "#eae7e7",
+                    "surface-variant": "#e5e2e1",
+                    "on-surface-variant": "#4d463f",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#cfc5bc",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#f3f0ef",
+                    "primary-fixed": "#eee0d4",
+                    "on-secondary-fixed-variant": "#4a4640",
+                    "on-primary-fixed": "#211a13",
+                    "on-primary-container": "#aa9f94",
+                    "inverse-surface": "#313030",
+                    "inverse-primary": "#d1c4b9",
+                    "secondary-fixed": "#e9e1d9",
+                    "tertiary-container": "#373734",
+                    "secondary-container": "#e6ded6",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1c1b1b",
+                    "surface-dim": "#dcd9d9",
+                    "surface-bright": "#fcf9f8",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#c9c6c2",
+                    "on-secondary-container": "#67625b",
+                    "background": "#fcf9f8",
+                    "on-background": "#1c1b1b",
+                    "surface-tint": "#665d54",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-fixed-variant": "#4e453d",
+                    "outline": "#7e766e",
+                    "on-tertiary-container": "#a2a09c",
+                    "on-secondary-fixed": "#1e1b16",
+                    "tertiary-fixed": "#e5e2dd",
+                    "error-container": "#ffdad6",
+                    "secondary": "#625e57",
+                    "on-tertiary-fixed-variant": "#474743",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#d1c4b9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "container-max": "1440px",
+                    "margin-desktop": "80px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<body class="bg-background text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed" data-mode="connect">
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-margin-desktop py-6 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md tracking-widest text-primary dark:text-primary-fixed">AURA</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="font-label-md text-label-md text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-300" href="#">Portfolio</a>
+<a class="font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">Process</a>
+<a class="font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">Exclusives</a>
+<a class="font-label-md text-label-md text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all">
+                    Get Started
+                </button>
+<button class="material-symbols-outlined text-primary text-[28px]">menu</button>
+</div>
+</div>
+</nav>
+<main class="min-h-[884px] pt-24 md:pt-0" data-stitch-vh="min-h-[884px]===min-h-screen">
+<section class="relative h-[884px] flex flex-col md:flex-row items-center overflow-hidden" data-stitch-vh="h-[884px]===h-screen">
+<div class="w-full md:w-5/12 h-full flex flex-col justify-center px-margin-mobile md:px-margin-desktop z-10 bg-background/90 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none">
+<div class="max-w-xl">
+<span class="inline-block font-label-md text-label-md text-primary mb-6 tracking-[0.2em] uppercase">Estilo de Vida Atemporal</span>
+<h1 class="font-display-lg text-display-lg text-primary mb-8 leading-[1.1]">
+                        Arquitectura <br> <span class="text-outline italic font-light">para la vida</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-md">
+                        Creamos espacios que respiran tranquilidad y seguridad. Diseños que honran la naturaleza y elevan la experiencia de habitar.
+                    </p>
+<div class="flex flex-wrap items-center gap-6 mb-16">
+<button class="bg-primary text-on-primary px-10 py-5 rounded-full flex items-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 group">
+<span class="font-label-md text-label-md uppercase tracking-widest">Explorar&nbsp;</span>
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-4">
+<div class="w-12 h-12 rounded-full border-4 border-background overflow-hidden">
+<img alt="Client" data-alt="Close-up portrait of a sophisticated man with a warm smile, set against a blurred architectural background. The lighting is soft and natural, emphasizing a professional yet approachable aesthetic. The color palette is composed of soft earth tones and muted greys, consistent with a high-end luxury real estate brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMwfU1OdTPvvquI-2bOdvwl79FwH96rJcaZ52XBwALMBQwKXFAEbbJEacEnhWMT0jYFVBAbA-FQmbVUjvldbUhCCvYcx_ze_A-ywJdEaTneRcYgjf7-pE78eMocCknbw_HFTkZPhq9DFkSJ9kxRzYlDij-Z53RPBClp2zz3thVrHgVSF1G0QeqK2aQDL-w4GuktOqBHRUvOwiiU91Msof1aibmg5YViQEcadbK3zoqx1Lh2Tfag_RsBA_2014qzpLtvrBN_FnF6eKR">
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-background overflow-hidden">
+<img alt="Client" data-alt="Studio portrait of a stylish woman with a serene expression, looking directly at the camera. The background is a clean, minimalist off-white surface. The lighting is high-key and diffused, creating an elegant and prestigious mood. The overall visual style is organic and sophisticated, using soft focus and premium textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0za0RVW-59OTHKpLiyaD0S7-Duxyx47nTXdX_0TmSENfMmrvjTnxijkaGvx_ueQRMjU39XMAm6m3QhnmWS4h-r-DpiriXgoYqoxVlZTISG5VPmygdQh5Mhm-pQG-PXtAmmpYIrX7rR0WKolrz_PyZKCIqL1X_b7fwnJK0JkGOPJzNqna7P42pV0F8HhJsdc2gkDTIBWlDUTubZe4Psp0QPS9pxrMwS6JfHmS7ieMvDV-QXe8w0AYgiKk19LNDA-oXOX7spyiCV1CG">
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-background overflow-hidden">
+<img alt="Client" data-alt="A portrait of a well-dressed professional in a modern office setting. The background features clean glass partitions and subtle wooden elements. The lighting is bright and airy, reflecting a contemporary light-mode design language. The color scheme focuses on deep browns and warm creams, conveying a sense of luxury and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJfT-JgGFQPHbP-n2C5EhrcoB3ytEkz21rKSlzpE0CfvFbsYERAv4KNUojrefREpxFyH3rEMC8y5jGAhLNCsz8LjDBbOzZnNXyYqY_VYaAmk_eRY8EFdMkga-WrbLhcYeuipcv0XUJbke6lbertWcL5buDXzCjCngsj23242tU07Hg1ymKV-Y6w4ERNayTFKveviZEmzV2bpEDZ5QzxvoSwahIAGhv4tkXTFhhJiFwDYA_OXyaetk1uU2dKG5z7ZN9y0B2kNDkwdNm">
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary font-bold">120+ familias felices</p>
+<p class="text-[12px] text-on-surface-variant opacity-70">Confían en nuestra visión</p>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute right-0 top-0 w-full md:w-7/12 h-full flex items-center justify-center md:justify-end p-4 md:p-12 z-0">
+<div class="relative w-full h-[614px] md:h-full overflow-hidden rounded-[4rem] md:rounded-l-[6rem] shadow-2xl">
+<img alt="Luxury Home" class="w-full h-full object-cover" data-alt="A majestic modern luxury villa showcasing organic minimalism architecture at sunset. The structure features expansive floor-to-ceiling glass walls, warm natural stone cladding, and dark timber accents. The lighting is warm and inviting, spilling from the interiors onto a pristine terrace with a reflection pool. The surrounding landscape is lush and serene, creating a tranquil and prestigious atmosphere under a soft twilight sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgvPoYQy8fGzBrEWoe7UEks_9dj72lfJ3Oz_0X_m_gmfPwg9pX_lm92wSjd6fEGBXg_5fH5NzshBaK_tEOCkda1q1kG0y-D-67fyWtZOyLYHcVAnbvsEZgnVPyMv5yuCIXdj9iyQc7fh3tdHOQpI5Nok42RextxXtIZuZui70whi9r_4B7DswPpb6HwZUSOQA1aIy03Jwyg3g-7k5uaqvutuSzWic-SAv2pRbuZpQAiB5oKXANY3pRU0MzatTJu433BFPayxc2om2q">
+<div class="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent hidden md:block"></div>
+</div>
+<div class="absolute bottom-12 md:bottom-24 left-1/2 md:left-auto md:right-margin-desktop -translate-x-1/2 md:translate-x-0 flex flex-col md:flex-row gap-4 z-20">
+<div class="bg-surface/90 backdrop-blur-xl p-6 rounded-xl shadow-lg border border-outline-variant/30 min-w-[200px] flex items-center gap-4 group hover:bg-surface transition-colors">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed">verified_user</span>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-primary leading-none">10</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Años de excelencia</p>
+</div>
+</div>
+<div class="bg-surface/90 backdrop-blur-xl p-6 rounded-xl shadow-lg border border-outline-variant/30 min-w-[200px] flex items-center gap-4 group hover:bg-surface transition-colors">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed">home_work</span>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-primary leading-none">150+</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Proyectos entregados</p>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-8 left-margin-desktop hidden lg:flex items-center gap-4 opacity-40">
+<div class="h-[1px] w-20 bg-primary"></div>
+<span class="font-label-md text-label-md uppercase tracking-[0.3em] text-primary">Explore AURA</span>
+</div>
+</section>
+<section class="py-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="group overflow-hidden rounded-xl bg-surface-container-low p-2">
+<div class="aspect-[4/5] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Residencia" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="An interior shot of a minimalist living room with high ceilings and huge windows overlooking a private garden. The room is furnished with designer pieces in neutral tones like cream, taupe, and deep coffee. The lighting is soft and ambient, creating a serene and luxurious feel. The overall aesthetic is one of tranquility and high-end organic design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9M-Ukg7rksDADD8vBZzhEtA98-AJpz_wwU10DlbStH_fM0L05dVRMuUAufAMH0SH9aSln1gy-l2skGwhtEqyVURWewj27bEcr1aUIQrK1K44oIGqzgTmQmWGbSPZ126jXQxeJOi6HHve57oPYnUszQ09RoWIk4QB0RsTKzEzhunCHGAZ_ullA2r4gk3i08sDWTHdZQjOyMqYBn9O1reSTw3iAew9X9xevnJsAQid2QC7DO7kR6sHU_-YO46tX1_b8k4YwutK-WWIq">
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="text-on-primary font-label-md text-label-md tracking-widest uppercase">Ver Detalles</span>
+</div>
+</div>
+<div class="px-4 pb-4">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Residencia Serenity</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Filandia, Qundío</p>
+</div>
+</div>
+<div class="group overflow-hidden rounded-xl bg-surface-container-low p-2 mt-12 md:mt-24">
+<div class="aspect-[4/5] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Residencia" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="The exterior of a modern architectural masterpiece featuring sharp geometric lines and organic materials like cedar wood and natural limestone. Set in a desert oasis at dusk, the house is illuminated by subtle recessed lighting. The sky is a gradient of deep blue and soft orange, emphasizing a peaceful and exclusive residential atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH5mHXlkNUCfM-Q_jjgIpQ3xspBAgsckSXTgLeLCncEBlTlhJchEfqGX8POFp5u-yC1eoAN9dOYxG34b_kdHmyO0XC3HwMiAHBr0_f7s9kPfHGxqaHl6VqW605ASzTu88NDA7XDuvbjxuXaEadPyj5WVBWnGVBZ67t4nU5Lo_jSbj0IQkHcwAxpWJREO4u5j3-xxeFildMt2hyGfPdmQIXkcF0jPpnoyc09z_v9cz4m4j15msHrjxDESL_H8FZvddoWaOFlMgdepXH">
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="text-on-primary font-label-md text-label-md tracking-widest uppercase">Ver Detalles</span>
+</div>
+</div>
+<div class="px-4 pb-4">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Villa Horizonte</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Circasia, Quindío</p>
+</div>
+</div>
+<div class="group overflow-hidden rounded-xl bg-surface-container-low p-2">
+<div class="aspect-[4/5] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Residencia" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A luxury bedroom suite with a minimalist design, featuring large windows that offer a panoramic view of a lush forest. The bed is dressed in high-quality white linens, and the room includes custom-built furniture in dark wood. The mood is calm and restorative, with soft morning light filtering through the trees. The design prioritizes comfort and high-end aesthetic restraint." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqVROqKfUxv5Cu8OFYpzQ9RGSFbZPgC7cVv-tD1kmJp0fKVcmy2Z_WOTaMbm5BpZKAAJWbtfaT-XwhykimBfcQwN1Tw3G9YVxaY0_nQ3ISTl9HcQJ-P0fYc0DeGgWSHxwirkRNWtSuFdqX0aY0UYyPSWg3iiF0MIImQlNjO6dzkowEdpCAHcTO6zQFUil7OdGViTLNn5NwHWDKNerVmT0Elr6gy0GS_GHgm203uJxgRQeaBeZwlb-077do60EybZs8S1vBgPf_bHKY">
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="text-on-primary font-label-md text-label-md tracking-widest uppercase">Ver Detalles</span>
+</div>
+</div>
+<div class="px-4 pb-4">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Refugio del Bosque</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Armenia, Quindío</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-surface-container-low dark:bg-surface-container-highest w-full py-16 px-margin-desktop border-t border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-container-max mx-auto gap-12">
+<div class="flex flex-col gap-4">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">AURA</div>
+<p class="font-body-md text-body-md text-on-secondary-container max-w-sm">
+                    Elevando el estándar de la arquitectura moderna a través de la simplicidad y el respeto por el entorno.
+                </p>
+</div>
+<div class="flex flex-wrap gap-10">
+<div class="flex flex-col gap-4">
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">Legal</span>
+<a class="font-body-md text-body-md text-on-secondary-container hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-secondary-container hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-4">
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">Connect</span>
+<a class="font-body-md text-body-md text-on-secondary-container hover:text-primary transition-colors" href="#">Press Kit</a>
+<a class="font-body-md text-body-md text-on-secondary-container hover:text-primary transition-colors" href="#">Inquiries</a>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto mt-16 pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body-md text-body-md text-on-secondary-container">© 2026 AURA. Estructuras de datos. All rights reserved.</p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-on-secondary-container hover:text-primary cursor-pointer transition-colors">public</span>
+<span class="material-symbols-outlined text-on-secondary-container hover:text-primary cursor-pointer transition-colors">alternate_email</span>
+<span class="material-symbols-outlined text-on-secondary-container hover:text-primary cursor-pointer transition-colors">share</span>
+</div>
+</div>
+</footer>
+</body></html>
