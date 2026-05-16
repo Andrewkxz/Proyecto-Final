@@ -23,6 +23,7 @@ public class HashTable<K, V> {
      * Generates index from key
      */
     private int hash(K key){
+        if(key == null) return 0; //Freno de seguridad
         return Math.abs(key.hashCode()) % capacity;
     }
 
@@ -30,6 +31,8 @@ public class HashTable<K, V> {
      * Inserts or updates a key-value pair
      */
     public void put(K key, V value){
+        if(key == null) return;
+
         int index = hash(key);
         Node<K, V> current = table[index];
 
@@ -50,6 +53,8 @@ public class HashTable<K, V> {
      * Returns value associated with key
      */
     public V get(K key){
+        if(key == null) return null;
+
         int index = hash(key);
         Node<K, V> current = table[index];
 
@@ -66,6 +71,8 @@ public class HashTable<K, V> {
      * Removes key-value pair
      */
     public V remove(K key){
+        if(key == null) return null;
+        
         int index = hash(key);
         Node<K, V> current = table[index];
         Node<K, V> previous = null;

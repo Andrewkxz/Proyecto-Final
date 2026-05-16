@@ -135,16 +135,18 @@ public class LinkedSimpleList<T extends Comparable<T>> implements Iterable<T> {
 
     public void removeData(T data){
         if(isEmpty()){
-            throw new RuntimeException("List is empty.");
+            return;
         }
-        if(first.getData() == data){
+        if(first.getData().equals(data)){
             removeFirst();
+            return;
         }
         Node<T> aux = first;
         while(aux.getNext() != null){
             if(aux.getNext().getData().equals(data)){
                 aux.setNext(aux.getNext().getNext());
                 size--;
+                return;
             }
             aux = aux.getNext();
         }
