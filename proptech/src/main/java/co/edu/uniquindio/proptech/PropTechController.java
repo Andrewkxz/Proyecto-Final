@@ -123,20 +123,11 @@ public class PropTechController {
     public String procesarLogin(@RequestParam String username, @RequestParam String password,
             HttpSession session, RedirectAttributes redirectAttrs) {
         Usuario u = plataforma.buscarUsuarioPorUsername(username);
-        if (u == null) {
-            if (username.equals("andres") && password.equals("pass"))
-                u = new Usuario("andres", "pass", "CLIENTE", "C-001");
-            else if (username.equals("juli") && password.equals("1234"))
-                u = new Usuario("juli", "1234", "ASESOR", "A-101");
-            else if (username.equals("juan") && password.equals("1234"))
-                u = new Usuario("juan", "1234", "ASESOR", "A-102");
-            else if (username.equals("admin") && password.equals("admin123"))
-                u = new Usuario("admin", "admin123", "ADMIN", "ADMIN-01");
-        }
         if (u != null && u.getPassword().equals(password)) {
             session.setAttribute("usuarioLogueado", u);
             return "redirect:/";
         }
+
         redirectAttrs.addFlashAttribute("error", "Usuario o contraseña incorrectos.");
         return "redirect:/login";
     }
@@ -476,18 +467,65 @@ public class PropTechController {
         return "redirect:/";
     }
 
-    @PostMapping("/registrar-cliente")
-    public String registrarCliente(
-            @RequestParam String identificacion, @RequestParam String nombre, @RequestParam String correo,
-            @RequestParam String telefono, @RequestParam String tipoCliente, @RequestParam double presupuesto,
-            @RequestParam String tipoInmuebleDeseado, @RequestParam int minHabitaciones,
+    @GetMapping("/registro")
+    public String mostrarRegistro() {
+        return "registro";
+    }
+
+    @PostMapping("/registro")
+    public String registrarNuevoCliente(
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam String identificacion,
+            @RequestParam String nombre,
+            @RequestParam String correo,
+            @RequestParam String telefono,
+            @RequestParam String tipoCliente,
+            @RequestParam double presupuesto,
+            @RequestParam String tipoInmuebleDeseado,
+            @RequestParam int minHabitaciones,
             RedirectAttributes redirectAttrs) {
-        if (plataforma.registrarCliente(new Cliente(identificacion, nombre, correo, telefono, tipoCliente, presupuesto,
-                tipoInmuebleDeseado, minHabitaciones)))
-            redirectAttrs.addFlashAttribute("mensajeExito", "Cliente registrado.");
-        else
-            redirectAttrs.addFlashAttribute("mensajeError", "El cliente ya existe.");
-        return "redirect:/";
+
+        // Verificar si ya existe usuario
+        if (plataforma.buscarUsuarioPorUsername(username) != null) {
+            redirectAttrs.addFlashAttribute("error", "El nombre de usuario ya existe.");
+            return "redirect:/registro";
+        }
+
+        // Crear cliente
+        Cliente nuevoCliente = new Cliente(
+                identificacion,
+                nombre,
+                correo,
+                telefono,
+                tipoCliente,
+                presupuesto,
+                tipoInmuebleDeseado,
+                minHabitaciones);
+
+        boolean clienteRegistrado = plataforma.registrarCliente(nuevoCliente);
+
+        if (!clienteRegistrado) {
+            redirectAttrs.addFlashAttribute("error", "Ya existe un cliente con esa identificación.");
+            return "redirect:/registro";
+        }
+
+        // Crear usuario para login
+        Usuario nuevoUsuario = new Usuario(
+                username,
+                password,
+                "CLIENTE",
+                identificacion);
+
+        boolean usuarioGuardado = plataforma.guardarUsuarioEnCSV(nuevoUsuario);
+
+        if (!usuarioGuardado) {
+            redirectAttrs.addFlashAttribute("mensajeError", "No se pudo guardar el usuario.");
+            return "redirect:/registro";
+        }
+
+        redirectAttrs.addFlashAttribute("mensajeExito", "Registro exitoso. Ya puedes iniciar sesión.");
+        return "redirect:/login";
     }
 
     @PostMapping("/registrar-asesor")

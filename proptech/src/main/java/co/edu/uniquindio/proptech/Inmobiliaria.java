@@ -93,36 +93,86 @@ public class Inmobiliaria {
     // -------------------------------------------------------------------------------------
     // LOGIN
     // -------------------------------------------------------------------------------------
-    private void cargarUsuariosDesdeCSV(){
-        try{
+    private void cargarUsuariosDesdeCSV() {
+        try {
             java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("usuarios.csv");
-            if(is == null){
+
+            if (is == null) {
                 System.out.println("Archivo usuarios.csv no encontrado.");
                 return;
             }
-            java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+
+            java.io.BufferedReader br = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(is));
+
             String linea;
             boolean esEncabezado = true;
 
-            while((linea = br.readLine()) != null){
-                if(esEncabezado){
+            while ((linea = br.readLine()) != null) {
+                if (esEncabezado) {
                     esEncabezado = false;
                     continue;
                 }
+
                 String[] datos = linea.split(",");
-                if(datos.length == 4){
-                    Usuario u = new Usuario(datos[0].trim(), datos[1].trim(), datos[2].trim(), datos[3].trim());
+
+                if (datos.length == 4) {
+                    Usuario u = new Usuario(
+                            datos[0].trim(),
+                            datos[1].trim(),
+                            datos[2].trim(),
+                            datos[3].trim());
+
                     usuariosSistema.put(u.getUsername(), u);
                 }
             }
+
             br.close();
             System.out.println("Usuarios cargados exitosamente desde CSV.");
-        } catch (Exception e){
-            System.out.println("Error leyendo el CSV de usuarios: " + e.getMessage());
+
+        } catch (Exception e) {
+            System.out.println("Error leyendo el CSV: " + e.getMessage());
         }
     }
 
-    public Usuario buscarUsuarioPorUsername(String username){
+    public boolean guardarUsuarioEnCSV(Usuario usuario) {
+        try {
+            java.io.File archivo = new java.io.File("src/main/resources/usuarios.csv");
+
+            if (!archivo.exists()) {
+                archivo.createNewFile();
+
+                java.io.FileWriter fwHeader = new java.io.FileWriter(archivo, true);
+                fwHeader.write("username,password,rol,idAsociado\n");
+                fwHeader.close();
+            }
+
+            if (usuariosSistema.containsKey(usuario.getUsername())) {
+                return false;
+            }
+
+            usuariosSistema.put(usuario.getUsername(), usuario);
+
+            java.io.BufferedWriter bw = new java.io.BufferedWriter(
+                    new java.io.FileWriter(archivo, true));
+
+            bw.newLine();
+            bw.write(usuario.getUsername() + "," +
+                    usuario.getPassword() + "," +
+                    usuario.getRol() + "," +
+                    usuario.getIdAsociado());
+
+            bw.close();
+
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Error guardando usuario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Usuario buscarUsuarioPorUsername(String username) {
         return usuariosSistema.get(username);
     }
     // -------------------------------------------------------------------------------------
@@ -135,7 +185,8 @@ public class Inmobiliaria {
      * @param nuevoInmueble El inmueble a registrar en la inmobiliaria.
      */
     public boolean registrarInmueble(Inmueble nuevoInmueble) {
-        if(inmueblesPorCodigo.containsKey(nuevoInmueble.getCodigo())) return false;
+        if (inmueblesPorCodigo.containsKey(nuevoInmueble.getCodigo()))
+            return false;
 
         catalogoInmuebles.addLast(nuevoInmueble);
         inmueblesPorCodigo.put(nuevoInmueble.getCodigo(), nuevoInmueble);
@@ -145,13 +196,16 @@ public class Inmobiliaria {
         String tipo = nuevoInmueble.getClass().getSimpleName().toUpperCase();
         String estado = nuevoInmueble.getEstado().toUpperCase();
 
-        if(inmueblesAgrupadosPorCiudad.get(ciudad) == null) inmueblesAgrupadosPorCiudad.put(ciudad, new LinkedSimpleList<>());
+        if (inmueblesAgrupadosPorCiudad.get(ciudad) == null)
+            inmueblesAgrupadosPorCiudad.put(ciudad, new LinkedSimpleList<>());
         inmueblesAgrupadosPorCiudad.get(ciudad).addLast(nuevoInmueble);
-        
-        if(inmueblesAgrupadosPorTipo.get(tipo) == null) inmueblesAgrupadosPorTipo.put(tipo, new LinkedSimpleList<>());
+
+        if (inmueblesAgrupadosPorTipo.get(tipo) == null)
+            inmueblesAgrupadosPorTipo.put(tipo, new LinkedSimpleList<>());
         inmueblesAgrupadosPorTipo.get(tipo).addLast(nuevoInmueble);
 
-        if(inmueblesAgrupadosPorEstado.get(estado) == null) inmueblesAgrupadosPorEstado.put(estado, new LinkedSimpleList<>());
+        if (inmueblesAgrupadosPorEstado.get(estado) == null)
+            inmueblesAgrupadosPorEstado.put(estado, new LinkedSimpleList<>());
         inmueblesAgrupadosPorEstado.get(estado).addLast(nuevoInmueble);
 
         String nodoZona = "Zona-" + nuevoInmueble.getBarrioZona().toUpperCase();
@@ -216,7 +270,7 @@ public class Inmobiliaria {
         if (inmueble != null) {
             pilaHistorialCambios.push(new CambioEstado(CambioEstado.TIPO_ELIMINACION_INMUEBLE, inmueble,
                     "Eliminación de inmueble: " + codigo));
-                    
+
             inmueblesPorCodigo.remove(codigo);
             catalogoInmuebles.removeData(inmueble);
             arbolInmueblesPorPrecio.delete(inmueble);
@@ -388,11 +442,11 @@ public class Inmobiliaria {
         }
     }
 
-    public boolean descartarInmueble(String idCliente, String codigoInmueble){
+    public boolean descartarInmueble(String idCliente, String codigoInmueble) {
         Cliente cliente = clientesPorId.get(idCliente);
         Inmueble inmueble = inmueblesPorCodigo.get(codigoInmueble);
 
-        if(cliente != null && inmueble != null){
+        if (cliente != null && inmueble != null) {
             cliente.descartarInmueble(inmueble);
             return true;
         }
@@ -442,19 +496,21 @@ public class Inmobiliaria {
         } while (visita != null && visita.getEstadoVisita().equals(Visita.ESTADO_CANCELADA));
         if (visita != null) {
             visita.registrarRealizacion("La visita se ejecutó de forma satisfactoria. El cliente mostró gran interés.");
-            pilaHistorialCambios.push(new CambioEstado(CambioEstado.TIPO_MODIFICACION_ESTADO, visita.getInmueble(), "Visita realizada para cliente: " + visita.getCliente().getId()));
+            pilaHistorialCambios.push(new CambioEstado(CambioEstado.TIPO_MODIFICACION_ESTADO, visita.getInmueble(),
+                    "Visita realizada para cliente: " + visita.getCliente().getId()));
         }
         return visita;
     }
 
     /**
      * Cambia el estado de una visita de Pendiente a Confirmada.
+     * 
      * @param idVisita ID único de la visita.
      * @return true si se confirmó, false si no existía o no estaba pendiente.
      */
-    public boolean confirmarVisita(String idVisita){
+    public boolean confirmarVisita(String idVisita) {
         Visita visita = buscarVisitaPorId(idVisita);
-        if(visita != null && visita.getEstadoVisita().equals(Visita.ESTADO_PENDIENTE)){
+        if (visita != null && visita.getEstadoVisita().equals(Visita.ESTADO_PENDIENTE)) {
             visita.confirmarVisita();
             return true;
         }
@@ -612,11 +668,11 @@ public class Inmobiliaria {
     /**
      * Registra la intención de compra o arriendo de un cliente sobre un inmueble.
      */
-    public boolean registrarIntencionDeNegocio(String idCliente, String codigoInmueble){
+    public boolean registrarIntencionDeNegocio(String idCliente, String codigoInmueble) {
         Cliente cliente = clientesPorId.get(idCliente);
         Inmueble inmueble = inmueblesPorCodigo.get(codigoInmueble);
 
-        if(cliente != null && inmueble != null){
+        if (cliente != null && inmueble != null) {
             cliente.registrarIntencion(inmueble);
             return true;
         }
@@ -641,40 +697,49 @@ public class Inmobiliaria {
             String zona = inm.getBarrioZona().toUpperCase();
 
             // Llenamos el Hash de zonas para evaluar la concentración de interés
-            if(zonasUnicas.getIndex(zona) == -1) zonasUnicas.addLast(zona);
+            if (zonasUnicas.getIndex(zona) == -1)
+                zonasUnicas.addLast(zona);
             Integer conteoActual = visitasPorZona.get(zona);
-            visitasPorZona.put(zona, (conteoActual == null ? numVisitas : conteoActual + numVisitas)); 
+            visitasPorZona.put(zona, (conteoActual == null ? numVisitas : conteoActual + numVisitas));
 
             if (inm.isDisponibilidad()) {
                 // Inmuebles con muchas vistas sin cierre
-                if(numVisitas >= 10){
+                if (numVisitas >= 10) {
                     registrarAlerta(new Alerta("ALERT-INM-" + inm.getCodigo(),
-                        "Inmueble " + inm.getCodigo() + " estancado con " + numVisitas + " visitas sin cierre.",
-                        Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 8));
-                // Inmuebles con alta demanda
+                            "Inmueble " + inm.getCodigo() + " estancado con " + numVisitas + " visitas sin cierre.",
+                            Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 8));
+                    // Inmuebles con alta demanda
                 } else if (numVisitas >= 5) {
                     registrarAlerta(new Alerta("ALT-DEM-" + inm.getCodigo(),
                             "Inmueble " + inm.getCodigo() + " tiene " + numVisitas + " visitas registradas.",
                             Alerta.TIPO_ALTA_DEMANDA, 5));
-                // Inmuebles sin visitas en mucho tiempo
-                } else if (numVisitas == 0){
-                    registrarAlerta(new Alerta("ALT-SVIS-" + inm.getCodigo(), "Inmueble abandonado: " + inm.getCodigo() + " no tiene visitas registradas.", Alerta.TIPO_INACTIVIDAD, 4));
+                    // Inmuebles sin visitas en mucho tiempo
+                } else if (numVisitas == 0) {
+                    registrarAlerta(new Alerta("ALT-SVIS-" + inm.getCodigo(),
+                            "Inmueble abandonado: " + inm.getCodigo() + " no tiene visitas registradas.",
+                            Alerta.TIPO_INACTIVIDAD, 4));
                 }
                 // Inmuebles cuyo precio cambia con demasiada frecuencia
                 Integer cambiosPrecio = contadorCambiosPrecio.get(inm.getCodigo());
-                if(cambiosPrecio != null && cambiosPrecio >= 3){
-                    registrarAlerta(new Alerta("ALT-PRE-" + inm.getCodigo(), "Flujo de precio extraño: El inmueble " + inm.getCodigo()+ " ha cambiado de precio " +  cambiosPrecio + " veces.", Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 7));
+                if (cambiosPrecio != null && cambiosPrecio >= 3) {
+                    registrarAlerta(new Alerta(
+                            "ALT-PRE-" + inm.getCodigo(), "Flujo de precio extraño: El inmueble " + inm.getCodigo()
+                                    + " ha cambiado de precio " + cambiosPrecio + " veces.",
+                            Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 7));
                 }
             }
         }
 
         // Concentración de interés en una misma zona
-        for(int i = 0; i < zonasUnicas.getSize(); i++){
+        for (int i = 0; i < zonasUnicas.getSize(); i++) {
             String z = zonasUnicas.getData(i);
             Integer visitasTotalesZona = visitasPorZona.get(z);
-            // Si una zona acumula más de 15 visitas globales, es una concentración de interés
-            if(visitasTotalesZona != null && visitasTotalesZona >= 15){
-                registrarAlerta(new Alerta("ALT-ZON-" + z, "Concentración de demanda: La zona " + z + " ha acumulado " + visitasTotalesZona + " visitas.", Alerta.TIPO_ALTA_DEMANDA, 6));
+            // Si una zona acumula más de 15 visitas globales, es una concentración de
+            // interés
+            if (visitasTotalesZona != null && visitasTotalesZona >= 15) {
+                registrarAlerta(new Alerta("ALT-ZON-" + z,
+                        "Concentración de demanda: La zona " + z + " ha acumulado " + visitasTotalesZona + " visitas.",
+                        Alerta.TIPO_ALTA_DEMANDA, 6));
             }
         }
 
@@ -689,38 +754,52 @@ public class Inmobiliaria {
         }
 
         // Análisis de operaciones (Contratos por vencer y Reservas estancadas)
-        for(int i = 0; i < operacionesRealizadas.getSize(); i++){
+        for (int i = 0; i < operacionesRealizadas.getSize(); i++) {
             Operacion op = operacionesRealizadas.getData(i);
 
             // Contratos próximos a vender (arriendos con más de 11 meses de antigüedad)
-            if(op.getTipoOperacion().equals(Operacion.TIPO_ARRIENDO) && op.getEstadoProceso().equals(Operacion.ESTADO_FINALIZADO)){
-                if(op.getFecha().isBefore(hoy.minusMonths(11))){
-                    registrarAlerta(new Alerta("ALT-VENC-" + op.getId(), "Oportunidad de renovación: El contrato de arriendo " + op.getId() + "está próximo a vencer.", "Alerta Comercial", 9));
+            if (op.getTipoOperacion().equals(Operacion.TIPO_ARRIENDO)
+                    && op.getEstadoProceso().equals(Operacion.ESTADO_FINALIZADO)) {
+                if (op.getFecha().isBefore(hoy.minusMonths(11))) {
+                    registrarAlerta(
+                            new Alerta("ALT-VENC-" + op.getId(), "Oportunidad de renovación: El contrato de arriendo "
+                                    + op.getId() + "está próximo a vencer.", "Alerta Comercial", 9));
                 }
             }
 
-            // Inmuebles reservados por mucho tiempo sin cierre (Operaciones "En trámite" de más de 15 días)
-            if(op.getEstadoProceso().equals(Operacion.ESTADO_EN_TRAMITE)){
-                if(op.getFecha().isBefore(hoy.minusDays(15))){
-                    registrarAlerta(new Alerta("ALT-RES-" + op.getId(), "Alerta de estancamiento: Operación " + op.getId() + "lleva más de 15 días en trámite sin finalizarse.", Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 7));
+            // Inmuebles reservados por mucho tiempo sin cierre (Operaciones "En trámite" de
+            // más de 15 días)
+            if (op.getEstadoProceso().equals(Operacion.ESTADO_EN_TRAMITE)) {
+                if (op.getFecha().isBefore(hoy.minusDays(15))) {
+                    registrarAlerta(new Alerta("ALT-RES-" + op.getId(),
+                            "Alerta de estancamiento: Operación " + op.getId()
+                                    + "lleva más de 15 días en trámite sin finalizarse.",
+                            Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 7));
                 }
             }
         }
 
         // Análisis de clientes con múltiples visitas en corto tiempo sin cierre
-        for(int i = 0; i < clientes.getSize(); i++){
+        for (int i = 0; i < clientes.getSize(); i++) {
             Cliente c = clientes.getData(i);
-            if(c.getInmueblesVisitados().getSize() >= 4 && c.getInmueblesNegociados().isEmpty()){
-                registrarAlerta(new Alerta("ALT-CLI-" + c.getId(), "Comprador atípico: El cliente " + c.getNombre() + " tiene " + c.getInmueblesVisitados().getSize() + " visitas pero cero intenciones o cierres.", Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 9));
+            if (c.getInmueblesVisitados().getSize() >= 4 && c.getInmueblesNegociados().isEmpty()) {
+                registrarAlerta(new Alerta("ALT-CLI-" + c.getId(),
+                        "Comprador atípico: El cliente " + c.getNombre() + " tiene "
+                                + c.getInmueblesVisitados().getSize() + " visitas pero cero intenciones o cierres.",
+                        Alerta.TIPO_COMPORTAMIENTO_INUSUAL, 9));
             }
         }
 
         // Análisis de clientes (sin seguimiento)
-        for(int i = 0; i < clientes.getSize(); i++){
+        for (int i = 0; i < clientes.getSize(); i++) {
             Cliente c = clientes.getData(i);
-            // Clientes sin seguimiento reciente (Buscan casa activamente pero no tienen interacciones)
-            if(c.getEstadoBusqueda().equals("Activa") && c.getHistorialConsultas().isEmpty() && c.getInmueblesVisitados().isEmpty()){
-                registrarAlerta(new Alerta("ALT-CLI-" + c.getId(), "Falta seguimiento: El cliente " + c.getNombre() + " no ha tenido interacciones recientes", "Alerta Operativa", 6));
+            // Clientes sin seguimiento reciente (Buscan casa activamente pero no tienen
+            // interacciones)
+            if (c.getEstadoBusqueda().equals("Activa") && c.getHistorialConsultas().isEmpty()
+                    && c.getInmueblesVisitados().isEmpty()) {
+                registrarAlerta(new Alerta("ALT-CLI-" + c.getId(),
+                        "Falta seguimiento: El cliente " + c.getNombre() + " no ha tenido interacciones recientes",
+                        "Alerta Operativa", 6));
             }
         }
 
@@ -755,11 +834,12 @@ public class Inmobiliaria {
 
         String tipo = nuevaOperacion.getTipoOperacion();
         if (tipo.equals(Operacion.TIPO_VENTA) || tipo.equals(Operacion.TIPO_ARRIENDO)) {
-            // "Finalizado": Bloque disponibilidad si es venta/arriendo, y mantiene ocupado si es renovación
+            // "Finalizado": Bloque disponibilidad si es venta/arriendo, y mantiene ocupado
+            // si es renovación
             nuevaOperacion.finalizarOperacion();
-        }
-        else if(tipo.equals(Operacion.TIPO_CANCELACION)){
-            // "Caído/revertido": Libera el inmueble, dejando su disponibilidad = true para volver a ser comercializado.
+        } else if (tipo.equals(Operacion.TIPO_CANCELACION)) {
+            // "Caído/revertido": Libera el inmueble, dejando su disponibilidad = true para
+            // volver a ser comercializado.
             nuevaOperacion.revertirOperacion();
         }
         if (nuevaOperacion.getAsesor() != null) {
@@ -768,15 +848,15 @@ public class Inmobiliaria {
         }
     }
 
-    public void registrarSolicitudCliente(String solicitud){
+    public void registrarSolicitudCliente(String solicitud) {
         colaSolicitudesClientes.offer(solicitud);
     }
 
-    public String atenderSiguienteSolicitud(){
+    public String atenderSiguienteSolicitud() {
         return colaSolicitudesClientes.isEmpty() ? null : colaSolicitudesClientes.poll();
     }
 
-    public String verSiguienteSolicitud(){
+    public String verSiguienteSolicitud() {
         return colaSolicitudesClientes.isEmpty() ? null : colaSolicitudesClientes.peek();
     }
 
@@ -787,8 +867,9 @@ public class Inmobiliaria {
     /**
      * Algoritmo que cruza Grafo de historial y Árbol de presupuestos para generar
      * recomendaciones personalizadas de inmuebles a un cliente.
+     * 
      * @param idCliente el ID del cliente para el cual se generarán las
-     * recomendaciones de inmuebles.
+     *                  recomendaciones de inmuebles.
      * @return una lista de inmuebles recomendados para el cliente.
      */
     public LinkedSimpleList<Inmueble> generarRecomendaciones(String idCliente) {
@@ -809,7 +890,8 @@ public class Inmobiliaria {
                 Inmueble inmuebleRecomendado = inmueblesPorCodigo.get(idSugerido);
 
                 if (inmuebleRecomendado != null && inmuebleRecomendado.isDisponibilidad()
-                        && inmuebleRecomendado.getPrecio() <= cliente.getPresupuesto() && inmuebleRecomendado.getHabitaciones() >= cliente.getMinHabitaciones()) {
+                        && inmuebleRecomendado.getPrecio() <= cliente.getPresupuesto()
+                        && inmuebleRecomendado.getHabitaciones() >= cliente.getMinHabitaciones()) {
                     recomendacionesFinales.addLast(inmuebleRecomendado);
                 }
             }
@@ -825,16 +907,17 @@ public class Inmobiliaria {
                     break;
                 }
                 if (inm.getPrecio() >= min && inm.isDisponibilidad()
-                        && inm.getClass().getSimpleName().equals(cliente.getTipoInmuebleDeseado()) && inm.getHabitaciones() >= cliente.getMinHabitaciones()) {
+                        && inm.getClass().getSimpleName().equals(cliente.getTipoInmuebleDeseado())
+                        && inm.getHabitaciones() >= cliente.getMinHabitaciones()) {
                     boolean coincideZona = false;
-                    if(cliente.getZonasInteres().isEmpty()){
+                    if (cliente.getZonasInteres().isEmpty()) {
                         coincideZona = true;
                     } else {
-                        for(int j = 0; j < cliente.getZonasInteres().getSize(); j++){
-                           if(cliente.getZonasInteres().getData(j).equalsIgnoreCase(inm.getBarrioZona())){
-                            coincideZona = true;
-                            break;
-                           } 
+                        for (int j = 0; j < cliente.getZonasInteres().getSize(); j++) {
+                            if (cliente.getZonasInteres().getData(j).equalsIgnoreCase(inm.getBarrioZona())) {
+                                coincideZona = true;
+                                break;
+                            }
                         }
                     }
 
