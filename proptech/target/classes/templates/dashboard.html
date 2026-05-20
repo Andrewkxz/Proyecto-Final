@@ -1,862 +1,1325 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>PropTech Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>AURA | Plataforma Operativa</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/gojs@2.3.11/release/go.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#091426", "on-primary": "#ffffff", "primary-container": "#1e293b", "on-primary-container": "#8590a6",
+                        "secondary": "#006c49", "on-secondary": "#ffffff", "secondary-container": "#6cf8bb", "on-secondary-container": "#00714d",
+                        "tertiary": "#111516", "on-tertiary": "#ffffff", "tertiary-container": "#26292b", "on-tertiary-container": "#8d9092",
+                        "error": "#ba1a1a", "on-error": "#ffffff", "error-container": "#ffdad6", "on-error-container": "#93000a",
+                        "background": "#f8f9ff", "on-background": "#0b1c30", "surface": "#f8f9ff", "on-surface": "#0b1c30",
+                        "surface-variant": "#d3e4fe", "on-surface-variant": "#45474c", "outline": "#75777d", "outline-variant": "#c5c6cd",
+                        "surface-container-lowest": "#ffffff", "surface-container-low": "#eff4ff", "surface-container": "#e5eeff",
+                        "surface-container-high": "#dce9ff", "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#d8e3fb", "secondary-fixed": "#6ffbbe", "tertiary-fixed": "#e0e3e5"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Montserrat"], "headline-lg": ["Montserrat"], "headline-md": ["Montserrat"],
+                        "body-lg": ["Inter"], "body-md": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "label-sm": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background: linear-gradient(to right, #eef2f3, #dfe9f3);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
         }
 
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
         }
 
-        .dark-mode {
-            background: #121212;
-            color: #e0e0e0;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .dark-mode .card {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        .dark-mode .form-control {
-            background-color: #2a2a2a !important;
-            color: #ffffff !important;
-            border-color: #555 !important;
-        }
-
-        .dark-mode h2,
-        .dark-mode h5 {
-            color: #90caf9;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #c5c6cd;
+            border-radius: 4px;
         }
 
         #myDiagramDiv {
             width: 100%;
-            height: 400px;
-            background-color: rgba(255, 255, 255, 0);
-            border-radius: 12px;
-            border: 2px solid #dee2e6;
+            height: 500px;
+            background-color: transparent;
+            border-radius: 0.75rem;
+            border: 1px solid #c5c6cd;
         }
-
-        .dark-mode #myDiagramDiv {
-            border-color: #444;
-        }
-
-        /* Nuevos estilos para arreglar los Modales en Modo Oscuro */
-        .dark-mode .modal-content {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-            border: 1px solid #444;
-        }
-
-        .dark-mode .modal-header {
-            border-bottom: 1px solid #444;
-        }
-
-        .dark-mode .modal-footer {
-            border-top: 1px solid #444;
-        }
-
-        .dark-mode .form-control::placeholder {
-            color: #aaaaaa !important;
-        }
-
-        .dark-mode .text-dark {
-            color: #e0e0e0 !important;
-        }
-
-        /* Sobrescribe el texto negro de Bootstrap */
     </style>
 </head>
 
-<body>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">🏢 PropTech 2026</a>
-            <button onClick="toggleDarkMode()" class="btn btn-outline-light btn-sm ms-auto">🌙 Modo Oscuro</button>
+    <div class="fixed top-4 right-4 z-[200] flex flex-col gap-2 w-full max-w-sm">
+        <div th:if="${mensajeExito}"
+            class="bg-secondary-container text-on-secondary-container p-4 rounded-lg shadow-lg flex justify-between items-center border border-secondary/20">
+            <span class="font-label-md" th:text="${mensajeExito}"></span>
+            <button onclick="this.parentElement.style.display='none'"
+                class="text-on-secondary-container hover:opacity-70"><span
+                    class="material-symbols-outlined">close</span></button>
         </div>
-    </nav>
-
-    <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong th:text="${mensajeExito}"></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div th:if="${mensajeError}"
+            class="bg-error-container text-on-error-container p-4 rounded-lg shadow-lg flex justify-between items-center border border-error/20">
+            <span class="font-label-md" th:text="${mensajeError}"></span>
+            <button onclick="this.parentElement.style.display='none'"
+                class="text-on-error-container hover:opacity-70"><span
+                    class="material-symbols-outlined">close</span></button>
+        </div>
+        <div th:if="${mensajeInfo}"
+            class="bg-surface-container-highest text-primary p-4 rounded-lg shadow-lg flex justify-between items-center border border-primary/20">
+            <span class="font-label-md" th:text="${mensajeInfo}"></span>
+            <button onclick="this.parentElement.style.display='none'" class="text-primary hover:opacity-70"><span
+                    class="material-symbols-outlined">close</span></button>
+        </div>
     </div>
-    <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong th:text="${mensajeError}"></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${mensajeInfo}" class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong th:text="${mensajeInfo}"></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
 
-    <div class="container-fluid px-4">
-
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <div class="card p-3 text-center bg-success text-white">
-                    <h4>Total Inmuebles</h4>
-                    <h2 class="fw-bold" th:text="${totalInmuebles}">0</h2>
+    <th:block th:if="${rolActual == 'ADMIN' or rolActual == 'ASESOR'}">
+        <aside
+            class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 overflow-y-auto z-40 bg-surface-container-low border-r border-outline-variant p-2 space-y-2">
+            <div class="px-4 py-6">
+                <div class="flex items-center gap-3 mb-8">
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-lg">
+                        AH</div>
+                    <div>
+                        <h2 class="font-headline-md text-xl text-primary leading-none">AURA Hub</h2>
+                        <p class="text-xs text-on-surface-variant font-bold" th:text="${rolActual}"></p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <form th:action="@{/generar-reportes}" method="post" class="m-0"><button type="submit"
+                            class="w-full flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold"><span
+                                class="material-symbols-outlined">insights</span><span
+                                class="font-label-md text-sm">Panel y Rankings</span></button></form>
+                    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg cursor-pointer"
+                        onclick="openModal('modalInmueble')"><span
+                            class="material-symbols-outlined">add_home</span><span class="font-label-md text-sm">Nuevo
+                            Inmueble</span></a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg cursor-pointer"
+                        onclick="openModal('modalCliente')"><span
+                            class="material-symbols-outlined">person_add</span><span class="font-label-md text-sm">Nuevo
+                            Cliente</span></a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg cursor-pointer"
+                        onclick="openModal('modalAsesor')"><span class="material-symbols-outlined">badge</span><span
+                            class="font-label-md text-sm">Nuevo Asesor</span></a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg cursor-pointer"
+                        onclick="openModal('modalOperacion')"><span
+                            class="material-symbols-outlined">real_estate_agent</span><span
+                            class="font-label-md text-sm">Cerrar Negocio</span></a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg cursor-pointer"
+                        onclick="openModal('modalGestionVisitas')"><span
+                            class="material-symbols-outlined">calendar_month</span><span
+                            class="font-label-md text-sm">Gestión de Visitas</span></a>
+                </nav>
+            </div>
+            <div class="mt-auto px-4 pb-6 space-y-4">
+                <div class="border-t border-outline-variant/30 pt-4 space-y-1">
+                    <a th:href="@{/logout}"
+                        class="flex items-center gap-3 px-3 py-2 text-error hover:bg-error-container/20 transition-colors rounded-lg"><span
+                            class="material-symbols-outlined">logout</span><span class="font-label-md text-sm">Cerrar
+                            Sesión</span></a>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card p-3">
-                    <h5 class="mb-3 text-secondary">Acciones Rápidas</h5>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal"
-                            data-bs-target="#modalInmueble">➕ Registrar Inmueble</button>
-                        <button class="btn btn-outline-secondary text-start w-100 mt-2" data-bs-toggle="modal"
-                            data-bs-target="#modalFiltros">🔍 Buscador inmueble</button>
-                        <button class="btn btn-outline-success text-start" data-bs-toggle="modal"
-                            data-bs-target="#modalCliente">👤 Registrar Cliente</button>
-                        <button class="btn btn-outline-dark text-start mt-2 w-100" data-bs-toggle="modal"
-                            data-bs-target="#modalAsesor">👔 Registrar Asesor</button>
-                        <button class="btn btn-outline-success text-start w-100 mt-2 text-dark border-success"
-                            data-bs-toggle="modal" data-bs-target="#modalOperacion"
-                            style="background-color: #d1e7dd;">🤝 Registrar Operación</button>
-                        <button class="btn btn-outline-primary text-start w-100 mt-2 text-primary border-primary"
-                            data-bs-toggle="modal" data-bs-target="#modalVisita" style="background-color: #cce5ff;">📅
-                            Agendar Visita</button>
-                        <button class="btn btn-outline-info text-start mt-2" data-bs-toggle="modal"
-                            data-bs-target="#modalPedirReco">💡 Generar Recomendaciones</button>
+        <div class="flex-1 md:ml-64 flex flex-col min-h-screen bg-background">
+            <header class="bg-surface sticky top-0 z-30 shadow-sm border-b border-outline-variant/30">
+                <div class="flex justify-between items-center w-full px-6 py-4 h-16">
+                    <div class="font-headline-md font-bold text-primary tracking-tight md:hidden">AURA</div>
+                    <div class="hidden md:flex items-center gap-4 text-sm font-label-md text-on-surface-variant">Panel
+                        Operativo de PropTech</div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-primary" th:text="${usuarioActual.username}"></span>
+                        <div
+                            class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-sm">person</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-                        <form th:action="@{/ver-perfil-cliente}" method="post" class="mt-2">
-                            <div class="input-group input-group-sm">
-                                <input type="text" name="idCliente" class="form-control"
-                                    placeholder="ID Cliente (Perfil)" required>
-                                <button class="btn btn-outline-dark" type="submit">👤 Ver Favoritos</button>
+            <main class="flex-1 p-6 space-y-8 max-w-7xl mx-auto w-full">
+                <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button type="button" onclick="openModal('modalFiltros')"
+                        class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow group">
+                        <div
+                            class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">search</span>
+                        </div>
+                        <span class="font-label-md text-sm text-on-surface">Buscador</span>
+                    </button>
+                    <button type="button" onclick="openModal('modalPedirReco')"
+                        class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow group">
+                        <div
+                            class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">auto_awesome</span>
+                        </div>
+                        <span class="font-label-md text-sm text-on-surface">IA Motor</span>
+                    </button>
+                    <form th:action="@{/analizar-comportamiento}" method="post"
+                        class="m-0 p-0 col-span-2 md:col-span-1 flex">
+                        <button type="submit"
+                            class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow group">
+                            <div
+                                class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center text-error group-hover:scale-105 transition-transform">
+                                <span class="material-symbols-outlined">warning</span>
                             </div>
-                        </form>
-                        <form th:action="@{/marcar-favorito}" method="post"
-                            class="mt-2 border border-warning p-2 rounded" style="background-color: #fff9e6;">
-                            <label class="form-label small fw-bold text-warning mb-1"
-                                style="color: #d39e00 !important;">⭐ Añadir Inmueble a Favoritos</label>
-                            <div class="input-group input-group-sm mb-1">
-                                <input type="text" name="idCliente" class="form-control"
-                                    placeholder="ID Cliente (Ej: C-001)" required>
-                                <input type="text" name="codigoInmueble" class="form-control"
-                                    placeholder="ID Inmueble (Ej: APT-001)" required>
+                            <span class="font-label-md text-sm text-on-surface">Escanear IA</span>
+                        </button>
+                    </form>
+                    <div
+                        class="bg-primary text-white rounded-xl p-4 flex flex-col items-center justify-center gap-2 shadow-lg">
+                        <span class="text-3xl font-display-lg font-bold" th:text="${totalInmuebles}"></span>
+                        <span class="font-label-md text-sm text-primary-fixed">En Catálogo</span>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div
+                        class="lg:col-span-8 bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-headline-md text-lg text-primary flex items-center gap-2"><span
+                                    class="material-symbols-outlined">account_tree</span> Árbol Binario de Precios</h3>
+                        </div>
+                        <div id="myDiagramDiv"
+                            style="width: 100%; height: 650px; border: 1px solid #e5e7eb; border-radius: 12px;"></div>
+                    </div>
+
+                    <div class="lg:col-span-4 space-y-6 flex flex-col">
+                        <div
+                            class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/20">
+                            <h3 class="font-headline-md text-base mb-3 flex items-center gap-2 text-primary"><span
+                                    class="material-symbols-outlined">person_search</span> Localizador de Cliente</h3>
+                            <form th:action="@{/ver-perfil-cliente}" method="post" class="flex gap-2">
+                                <div class="relative flex-grow">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                                    <input type="text" name="idCliente"
+                                        class="w-full pl-9 pr-3 py-2 bg-background border border-outline-variant rounded-lg focus:outline-none focus:border-primary text-sm"
+                                        placeholder="ID (Ej: C-001)" required>
+                                </div>
+                                <button type="submit"
+                                    class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800">Ver
+                                    Perfil</button>
+                            </form>
+                        </div>
+
+                        <div
+                            class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 flex flex-col flex-1 min-h-[250px]">
+                            <div class="p-4 border-b border-outline-variant/20 bg-surface-container-low rounded-t-xl">
+                                <h3 class="font-label-md text-sm text-primary flex items-center gap-2 mb-1"><span
+                                        class="material-symbols-outlined text-[18px]">format_list_bulleted</span> Tareas
+                                    Pendientes (FIFO)</h3>
+                                <p class="text-xs text-on-surface-variant font-medium mt-1">Siguiente: <span
+                                        th:text="${siguienteTarea}" class="text-primary font-bold"></span></p>
                             </div>
-                            <button class="btn btn-warning btn-sm w-100 text-dark fw-bold" type="submit">Guardar
-                                Favorito</button>
-                        </form>
+                            <div class="p-4 space-y-3">
+                                <form th:action="@{/agregar-tarea}" method="post" class="flex gap-2"><input type="text"
+                                        name="tarea"
+                                        class="flex-grow p-2 border border-outline-variant rounded text-xs bg-white"
+                                        placeholder="Nueva tarea..." required><button type="submit"
+                                        class="px-3 py-2 bg-surface-variant text-primary rounded font-bold">+</button>
+                                </form>
+                                <form th:action="@{/atender-tarea}" method="post"><button
+                                        class="w-full text-xs border border-outline-variant text-on-surface-variant py-2 rounded hover:bg-surface-container transition-colors font-bold">Resolver
+                                        Tarea</button></form>
+                            </div>
+                            <div class="p-4 border-t border-outline-variant/20 bg-secondary-container/20 rounded-b-xl">
+                                <h3
+                                    class="font-label-md text-sm text-on-secondary-fixed-variant flex items-center gap-2 mb-1">
+                                    <span class="material-symbols-outlined text-[18px]">move_to_inbox</span> Soporte a
+                                    Clientes
+                                </h3>
+                                <p class="text-xs text-on-surface-variant font-medium mb-3">Atender a: <span
+                                        th:text="${siguienteSolicitud}" class="text-secondary font-bold"></span></p>
+                                <form th:action="@{/agregar-solicitud}" method="post" class="flex gap-2 mb-2"><input
+                                        type="text" name="solicitud"
+                                        class="flex-grow p-2 border border-outline-variant rounded text-xs bg-white"
+                                        placeholder="Ej: Llamar C-001" required><button type="submit"
+                                        class="px-3 py-2 bg-secondary text-white rounded font-bold">+</button></form>
+                                <form th:action="@{/atender-solicitud}" method="post"><button
+                                        class="w-full text-xs bg-secondary text-white py-2 rounded hover:opacity-90 font-bold">Atender
+                                        Solicitud</button></form>
+                            </div>
+                        </div>
 
-                        <form th:action="@{/atender-visita}" method="post" class="mt-2">
-                            <button type="submit" class="btn btn-primary text-start w-100 text-white">✅ Atender
-                                Siguiente Visita (VIP)</button>
-                        </form>
+                        <div class="bg-error-container/20 p-5 rounded-xl border border-error/20 flex flex-col">
+                            <h3 class="font-headline-md text-base mb-3 flex items-center gap-2 text-error"><span
+                                    class="material-symbols-outlined">warning</span> Alertas Críticas</h3>
+                            <div class="max-h-32 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                                <p th:if="${listaAlertas == null}" class="text-xs text-on-surface-variant">Presione
+                                    Escanear Anomalías.</p>
+                                <div th:each="alerta : ${listaAlertas}"
+                                    class="bg-surface-container-lowest p-2 rounded-lg border-l-4 border-error shadow-sm text-xs font-medium text-on-surface mb-2"
+                                    th:text="${alerta}"></div>
+                            </div>
+                        </div>
 
-                        <form th:action="@{/analizar-comportamiento}" method="post" class="mt-2">
-                            <button type="submit" class="btn btn-outline-warning text-start w-100">⚠️ Analizar
-                                Comportamiento</button>
-                        </form>
-
-                        <form th:action="@{/generar-reportes}" method="post" class="mt-2">
-                            <button type="submit" class="btn btn-outline-dark text-start w-100">📊 Reportes y
-                                Rankings</button>
-                        </form>
+                        <div
+                            class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-5">
+                            <h3 class="font-label-md text-sm text-on-surface-variant flex items-center gap-2 mb-3"><span
+                                    class="material-symbols-outlined text-[18px]">history</span> Última Acción (LIFO)
+                            </h3>
+                            <div class="relative pl-4 border-l-2 border-outline-variant/30 space-y-3">
+                                <div class="relative">
+                                    <span
+                                        class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-surface-container-lowest"></span>
+                                    <div class="flex flex-col gap-2">
+                                        <p class="font-label-sm text-xs text-on-surface"
+                                            th:text="${ultimaAccion != null ? ultimaAccion : 'Sin acciones'}"></p>
+                                        <form th:action="@{/deshacer-accion}" method="post" th:if="${hayHistorial}">
+                                            <button type="submit"
+                                                class="flex items-center gap-1 text-[11px] text-outline hover:text-error transition-colors font-bold"><span
+                                                    class="material-symbols-outlined text-[14px]">undo</span> Deshacer
+                                                Acción</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="card p-3 mt-3 border-danger">
-                <h5 class="text-danger mb-3">⚙️ Gestión de Registros (CRUD)</h5>
-
-                <form th:action="@{/eliminar-inmueble}" method="post" class="mb-2">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="codigo" class="form-control border-danger"
-                            placeholder="Código Inmueble a borrar" required>
-                        <button class="btn btn-outline-danger" type="submit">🗑️ Borrar</button>
-                    </div>
-                </form>
-
-                <form th:action="@{/eliminar-cliente}" method="post">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="idCliente" class="form-control border-danger"
-                            placeholder="ID Cliente a borrar" required>
-                        <button class="btn btn-outline-danger" type="submit">🗑️ Borrar</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card p-3 mt-3 border-dark">
-                <h5 class="text-dark mb-3">🗂️ Utilidades Avanzadas</h5>
-
-                <label class="form-label small text-muted mb-1">Agrupar propiedades por ciudad</label>
-                <form th:action="@{/consultar-ciudad}" method="post" class="mb-3">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="ciudad" class="form-control border-dark" placeholder="Ej: Armenia"
-                            required>
-                        <button class="btn btn-outline-dark" type="submit">Agrupar</button>
-                    </div>
-                </form>
-
-                <label class="form-label small text-muted mb-1 mt-2">Cola de tareas administrativas</label>
-
-                <div class="p-2 mb-2 rounded bg-light border border-dark small">
-                    <strong>Próxima tarea:</strong> <span th:text="${siguienteTarea}" class="text-primary"></span>
-                </div>
-
-                <form th:action="@{/agregar-tarea}" method="post" class="mb-2">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="tarea" class="form-control border-dark"
-                            placeholder="Describir nueva tarea..." required>
-                        <button class="btn btn-dark" type="submit">➕ Encolar</button>
-                    </div>
-                </form>
-
-                <form th:action="@{/atender-tarea}" method="post">
-                    <button class="btn btn-outline-success btn-sm w-100 fw-bold" type="submit">✅ Resolver Siguiente
-                        Tarea</button>
-                </form>
-
-                <label class="form-label small text-muted mb-1 mt-2">Panel Gerencial</label>
-                <form th:action="@{/panel-gerencial}" method="post">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="zonaSimulacion" class="form-control border-danger"
-                            placeholder="Zona a simular (Ej: Norte)" required>
-                        <button class="btn btn-danger fw-bold" type="submit">📈 Panel Gerencial</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card p-3 mt-3 border-primary">
-                <h5 class="text-primary mb-3">📅 Gestión de Visitas</h5>
-
-                <form th:action="@{/cancelar-visita}" method="post" class="mb-2">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="idVisita" class="form-control border-primary"
-                            placeholder="ID Visita a cancelar" required>
-                        <button class="btn btn-outline-danger" type="submit">❌ Cancelar</button>
-                    </div>
-                </form>
-
-                <form th:action="@{/reprogramar-visita}" method="post">
-                    <div class="input-group input-group-sm mb-1">
-                        <input type="text" name="idVisita" class="form-control border-primary" placeholder="ID Visita"
-                            required>
-                    </div>
-                    <div class="input-group input-group-sm mb-1">
-                        <input type="date" name="nuevaFecha" class="form-control border-primary" required>
-                        <input type="time" name="nuevaHora" class="form-control border-primary" required>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm w-100" type="submit">🔄 Reprogramar</button>
-                </form>
-            </div>
-
-            <div class="card p-3 border-danger mt-3">
-                <h5 class="text-danger mb-3">Bandeja de Alertas</h5>
-
-                <p th:if="${listaAlertas == null}" class="text-muted small">Haz clic en 'Analizar Comportamiento' para
-                    detectar anomalías en el sistema.</p>
-
-                <ul class="list-group list-group-flush">
-                    <li th:each="alerta : ${listaAlertas}" class="list-group-item list-group-item-danger small fw-bold"
-                        th:text="${alerta}"></li>
-                </ul>
-            </div>
-
-            <div class="card p-3 border-secondary mt-3">
-                <h5 class="text-secondary mb-3">🕒 Última Acción (Pila)</h5>
-                <p class="text-muted small border border-secondary p-2 rounded mb-2 text-break"
-                    th:text="${ultimaAccion}"></p>
-
-                <form th:action="@{/deshacer-accion}" method="post" th:if="${hayHistorial}">
-                    <button type="submit" class="btn btn-outline-secondary btn-sm w-100">↩️ Deshacer Acción</button>
-                </form>
-            </div>
+            </main>
         </div>
+    </th:block>
 
-        <div class="col-md-9">
-            <div class="card h-100 p-0 overflow-hidden">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="m-0 text-secondary">Organización de Inmuebles por Precio (ABB)</h5>
+    <th:block th:if="${rolActual == 'CLIENTE'}">
+        <div class="flex-1 flex flex-col min-h-screen bg-background">
+            <nav class="w-full sticky top-0 z-50 bg-surface shadow-sm border-b border-outline-variant/20 h-20">
+                <div class="flex justify-between items-center h-full px-6 md:px-12 max-w-7xl mx-auto">
+                    <div class="font-headline-md text-2xl font-bold text-primary tracking-tight">AURA</div>
+                    <ul class="hidden md:flex items-center gap-8">
+                        <li>
+                            <form th:action="@{/ver-perfil-cliente}" method="post" class="m-0"><input type="hidden"
+                                    name="idCliente" th:value="${idAsociadoActual}"><button type="submit"
+                                    class="text-primary font-bold border-b-2 border-primary pb-1 cursor-pointer">Mis
+                                    Listas</button></form>
+                        </li>
+                    </ul>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium text-on-surface-variant hidden md:inline-block"
+                            th:text="${usuarioActual.username}"></span>
+                        <a th:href="@{/logout}"
+                            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-error-container text-error transition-all"
+                            title="Cerrar Sesión"><span class="material-symbols-outlined">logout</span></a>
+                    </div>
                 </div>
-                <div id="myDiagramDiv"></div>
+            </nav>
+
+            <main class="flex-grow w-full">
+                <section class="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center bg-primary">
+                    <div class="absolute inset-0 z-0">
+                        <img alt="Casa de lujo" class="w-full h-full object-cover opacity-50 mix-blend-overlay"
+                            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent"></div>
+                    </div>
+                    <div class="relative z-10 w-full max-w-7xl px-6 mx-auto text-center mt-[-5vh]">
+                        <h1 class="font-display-lg text-4xl md:text-5xl text-white mb-6 drop-shadow-lg font-bold">
+                            Descubre tu espacio extraordinario</h1>
+
+                        <div
+                            class="bg-surface rounded-xl p-4 shadow-2xl max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-end">
+                            <form th:action="@{/buscar-inmuebles}" method="post"
+                                class="flex flex-col md:flex-row gap-4 w-full items-end">
+                                <div class="w-full md:flex-1 text-left">
+                                    <label
+                                        class="block font-label-sm text-xs text-on-surface-variant mb-2 font-bold uppercase">Ubicación
+                                        / Zona</label>
+                                    <div class="relative"><span
+                                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">location_on</span><input
+                                            type="text" name="zona"
+                                            class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:ring-1 outline-none text-sm"
+                                            placeholder="Ej: Norte" required /></div>
+                                </div>
+                                <div class="w-full md:w-36 text-left">
+                                    <label
+                                        class="block font-label-sm text-xs text-on-surface-variant mb-2 font-bold uppercase">Precio
+                                        Max</label>
+                                    <input type="number" name="precioMax" value="1000000000"
+                                        class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:ring-1 outline-none text-sm" />
+                                    <input type="hidden" name="precioMin" value="0">
+                                </div>
+                                <div class="w-full md:w-28 text-left">
+                                    <label
+                                        class="block font-label-sm text-xs text-on-surface-variant mb-2 font-bold uppercase">Habitaciones</label>
+                                    <input type="number" name="minHabitaciones" value="1"
+                                        class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:ring-1 outline-none text-sm" />
+                                </div>
+                                <button type="submit"
+                                    class="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm h-[46px]">Buscar</button>
+                            </form>
+                            <button type="button" onclick="openModal('modalFiltros')"
+                                class="w-full md:w-auto px-4 py-3 border border-primary text-primary rounded-lg font-bold text-sm hover:bg-surface-container-low transition-colors shadow-sm h-[46px] flex items-center justify-center gap-2"
+                                title="Filtros Avanzados">
+                                <span class="material-symbols-outlined text-[20px]">tune</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-16 px-6 md:px-12 max-w-7xl mx-auto">
+                    <div class="flex justify-between items-end mb-10 border-b border-outline-variant/30 pb-4">
+                        <div>
+                            <h2 class="font-headline-lg text-3xl text-on-surface mb-2 font-bold">Propiedades Destacadas
+                            </h2>
+                            <p class="font-body-md text-on-surface-variant">Listados exclusivos seleccionados por
+                                nuestro equipo.</p>
+                        </div>
+                        <form th:action="@{/generar-recomendaciones}" method="post" class="m-0 hidden md:block">
+                            <input type="hidden" name="idCliente" th:value="${idAsociadoActual}">
+                            <button type="submit"
+                                class="bg-secondary-container text-on-secondary-container font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm hover:opacity-90"><span
+                                    class="material-symbols-outlined text-sm">auto_awesome</span> Sugerencias
+                                IA</button>
+                        </form>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <article th:each="inm : ${catalogoInmuebles}"
+                            class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                            <div class="relative h-64 overflow-hidden bg-gray-100">
+                                <img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    alt="House">
+                                <div class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded text-primary font-bold text-xs uppercase"
+                                    th:text="${inm['estado']}"></div>
+                            </div>
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-2xl font-bold text-on-surface mb-1"
+                                    th:text="'$' + ${inm['precio']}"></h3>
+                                <p class="font-body-sm text-sm text-on-surface-variant mb-4 flex-grow"
+                                    th:text="${inm['direccion']} + ', ' + ${inm['barrioZona']}"></p>
+                                <div class="flex gap-2 flex-wrap mb-4">
+                                    <span
+                                        class="bg-surface-container text-on-primary-fixed text-xs font-bold px-2 py-1 rounded"
+                                        th:text="${inm['habitaciones']} + ' Hab'"></span>
+                                    <span
+                                        class="bg-surface-container text-on-primary-fixed text-xs font-bold px-2 py-1 rounded"
+                                        th:text="${inm['banos']} + ' Baños'"></span>
+                                    <span
+                                        class="bg-surface-container text-on-primary-fixed text-xs font-bold px-2 py-1 rounded"
+                                        th:text="${inm['area']} + ' m²'"></span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between pt-4 border-t border-outline-variant/30 gap-2 mb-4">
+                                    <form th:action="@{/marcar-favorito}" method="post" class="m-0"><input type="hidden"
+                                            name="idCliente" th:value="${idAsociadoActual}"><input type="hidden"
+                                            name="codigoInmueble" th:value="${inm['codigo']}"><button type="submit"
+                                            class="w-10 h-10 rounded-full border border-primary text-primary hover:bg-surface-container transition-colors flex justify-center items-center"
+                                            title="Añadir a Favoritos"><span
+                                                class="material-symbols-outlined text-[18px]">favorite</span></button>
+                                    </form>
+                                    <form th:action="@{/registrar-consulta}" method="post" class="m-0"><input
+                                            type="hidden" name="idCliente" th:value="${idAsociadoActual}"><input
+                                            type="hidden" name="codigoInmueble" th:value="${inm['codigo']}"><button
+                                            type="submit"
+                                            class="w-10 h-10 rounded-full border border-outline text-outline hover:text-primary hover:border-primary transition-colors flex justify-center items-center"
+                                            title="Ver (Añadir al Grafo)"><span
+                                                class="material-symbols-outlined text-[18px]">visibility</span></button>
+                                    </form>
+                                    <form th:action="@{/descartar-inmueble}" method="post" class="m-0"><input
+                                            type="hidden" name="idCliente" th:value="${idAsociadoActual}"><input
+                                            type="hidden" name="codigoInmueble" th:value="${inm['codigo']}"><button
+                                            type="submit"
+                                            class="w-10 h-10 rounded-full border border-error text-error hover:bg-error-container transition-colors flex justify-center items-center"
+                                            title="Descartar"><span
+                                                class="material-symbols-outlined text-[18px]">visibility_off</span></button>
+                                    </form>
+                                </div>
+                                <button type="button" th:data-codigo="${inm['codigo']}"
+                                    onclick="abrirAgendarVisita(this.getAttribute('data-codigo'))"
+                                    class="w-full bg-secondary text-white text-xs font-bold py-3 rounded-lg hover:bg-secondary/90 transition-colors uppercase tracking-wider text-center shadow-sm">Contactar
+                                    Agente / Agendar</button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </main>
+            <footer class="w-full pt-16 pb-10 bg-primary text-white text-center">
+                <div class="text-xl font-bold tracking-tight mb-4">AURA</div>
+                <p class="text-xs opacity-70">© 2026 AURA. Estructuras de Datos.</p>
+            </footer>
+        </div>
+    </th:block>
+
+    <div id="modalFiltros"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-outline-variant">
+            <div
+                class="px-6 py-4 flex justify-between items-center border-b border-outline-variant bg-primary text-white">
+                <h4 class="font-bold text-lg">Búsqueda Detallada</h4>
+                <button onclick="closeModal('modalFiltros')" class="hover:text-error text-xl">&times;</button>
+            </div>
+            <form th:action="@{/buscar-inmuebles}" method="post" class="p-6 space-y-4">
+                <div><label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Zona /
+                        Barrio</label><input type="text" name="zona"
+                        class="w-full p-3 border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary"
+                        required></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Precio
+                            Mínimo</label><input type="number" name="precioMin" value="0"
+                            class="w-full p-3 border border-outline-variant rounded-lg"></div>
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Precio
+                            Máximo</label><input type="number" name="precioMax" value="500000000"
+                            class="w-full p-3 border border-outline-variant rounded-lg"></div>
+                </div>
+                <div><label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Mínimo
+                        Habitaciones</label><input type="number" name="minHabitaciones" value="1"
+                        class="w-full p-3 border border-outline-variant rounded-lg"></div>
+                <div class="pt-4"><button type="submit"
+                        class="w-full py-3 bg-primary text-white rounded-lg font-bold shadow-md">Ejecutar
+                        Búsqueda</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalVisitaCliente"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-outline-variant">
+            <div class="bg-secondary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Contactar Agente y Agendar</h4>
+                <button onclick="closeModal('modalVisitaCliente')"
+                    class="text-white hover:text-error text-xl">&times;</button>
+            </div>
+            <form th:action="@{/agendar-visita-cliente}" method="post" class="p-6 grid grid-cols-1 gap-4">
+                <input type="hidden" name="idCliente" th:value="${idAsociadoActual}">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Código del
+                    Inmueble</label>
+                <input type="text" id="visitaCodigoInmueble" name="codigoInmueble"
+                    class="w-full p-3 border border-outline-variant rounded text-sm bg-surface-container font-bold text-primary"
+                    readonly required>
+
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Fecha
+                            Sugerida</label><input type="date" name="fecha"
+                            class="w-full p-3 border border-outline-variant rounded text-sm" required></div>
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Hora</label><input
+                            type="time" name="hora" class="w-full p-3 border border-outline-variant rounded text-sm"
+                            required></div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-secondary text-white py-3 rounded-lg font-bold shadow-md mt-4 hover:bg-secondary/90">Confirmar
+                    Cita</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalReprogramarCliente"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-outline-variant">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Reprogramar Visita</h4>
+                <button onclick="closeModal('modalReprogramarCliente')"
+                    class="text-white hover:text-error text-xl">&times;</button>
+            </div>
+            <form th:action="@{/reprogramar-visita-cliente}" method="post" class="p-6 grid grid-cols-1 gap-4">
+                <input type="hidden" name="idCliente" th:value="${idAsociadoActual}">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Código del
+                    Inmueble</label>
+                <input type="text" id="reproCodigoInmueble" name="codigoInmueble"
+                    class="w-full p-3 border border-outline-variant rounded text-sm bg-surface-container font-bold text-primary"
+                    readonly required>
+
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Nueva
+                            Fecha</label><input type="date" name="nuevaFecha"
+                            class="w-full p-3 border border-outline-variant rounded text-sm" required></div>
+                    <div><label
+                            class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Nueva
+                            Hora</label><input type="time" name="nuevaHora"
+                            class="w-full p-3 border border-outline-variant rounded text-sm" required></div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-bold shadow-md mt-4 hover:bg-primary/90">Confirmar
+                    Reprogramación</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalGestionVisitas"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-primary-container px-6 py-4 flex justify-between items-center shrink-0">
+                <h4 class="text-white font-bold text-lg flex items-center gap-2"><span
+                        class="material-symbols-outlined">calendar_month</span> Centro de Gestión de Visitas</h4>
+                <button onclick="closeModal('modalGestionVisitas')"
+                    class="text-white hover:text-error text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface flex-grow">
+                <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm h-fit">
+                    <h5 class="font-bold text-primary mb-2 border-b border-outline-variant/30 pb-2">Visitas Activas /
+                        Pendientes</h5>
+                    <div class="max-h-32 overflow-y-auto custom-scrollbar mb-4 space-y-2 pr-1">
+                        <p th:if="${#lists.isEmpty(listaVisitasPendientes)}"
+                            class="text-xs text-on-surface-variant font-medium">No hay visitas pendientes.</p>
+                        <div th:each="vp : ${listaVisitasPendientes}"
+                            class="bg-surface-bright p-2.5 rounded border border-outline-variant/50 text-[11px] font-bold text-primary shadow-sm"
+                            th:text="${vp}"></div>
+                    </div>
+                    <form th:action="@{/agendar-visita}" method="post"
+                        class="grid grid-cols-2 gap-3 pt-4 border-t border-outline-variant/30">
+                        <h5 class="col-span-2 font-bold text-xs text-on-surface-variant uppercase">Agendar Nueva
+                            (Manual)</h5>
+                        <input type="text" name="idVisita"
+                            class="col-span-2 p-2 border border-outline-variant rounded text-xs"
+                            placeholder="ID Visita (Ej: V-001)" required>
+                        <input type="text" name="idCliente" class="p-2 border border-outline-variant rounded text-xs"
+                            placeholder="ID Cliente" required>
+                        <input type="text" name="codigoInmueble"
+                            class="p-2 border border-outline-variant rounded text-xs" placeholder="ID Inmueble"
+                            required>
+                        <input type="date" name="fecha" class="p-2 border border-outline-variant rounded text-xs"
+                            required>
+                        <input type="time" name="hora" class="p-2 border border-outline-variant rounded text-xs"
+                            required>
+                        <input type="number" name="nivelUrgencia"
+                            class="col-span-2 p-2 border border-error/50 rounded text-xs bg-error-container/10" min="1"
+                            max="5" value="1" placeholder="Urgencia Priority Queue" required>
+                        <button type="submit"
+                            class="col-span-2 w-full bg-primary-container text-white py-2 rounded font-bold hover:bg-primary transition-colors text-xs">Encolar
+                            Priority Queue</button>
+                    </form>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-5 rounded-xl border border-error/30 shadow-sm bg-error-container/10">
+                        <h5 class="font-bold text-error mb-4 border-b border-error/30 pb-2">Cola VIP (Priority Queue)
+                        </h5>
+                        <form th:action="@{/atender-visita}" method="post">
+                            <button type="submit"
+                                class="w-full bg-error text-white py-3 rounded-lg font-bold shadow-md hover:bg-error/90 transition-colors flex justify-center items-center gap-2"><span
+                                    class="material-symbols-outlined">priority_high</span> Atender Siguiente Visita
+                                VIP</button>
+                        </form>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm">
+                        <h5 class="font-bold text-primary mb-4 border-b border-outline-variant/30 pb-2">Administrar
+                            Estados</h5>
+                        <div class="space-y-4">
+                            <form th:action="@{/confirmar-visita}" method="post" class="flex gap-2">
+                                <input type="text" name="idVisita"
+                                    class="w-full p-2 border border-outline-variant rounded text-sm"
+                                    placeholder="ID Visita a Confirmar" required>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-secondary text-white rounded font-bold text-sm hover:bg-secondary/90">Confirmar</button>
+                            </form>
+                            <form th:action="@{/cancelar-visita}" method="post" class="flex gap-2">
+                                <input type="text" name="idVisita"
+                                    class="w-full p-2 border border-outline-variant rounded text-sm"
+                                    placeholder="ID Visita a Cancelar" required>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-outline text-white rounded font-bold text-sm hover:bg-outline/80">Cancelar</button>
+                            </form>
+                            <form th:action="@{/reprogramar-visita}" method="post"
+                                class="flex flex-col gap-2 pt-4 border-t border-outline-variant/30">
+                                <label class="text-xs font-bold text-on-surface-variant uppercase">Reprogramar
+                                    Visita</label>
+                                <input type="text" name="idVisita"
+                                    class="w-full p-2 border border-outline-variant rounded text-sm"
+                                    placeholder="ID Visita" required>
+                                <div class="flex gap-2">
+                                    <input type="date" name="nuevaFecha"
+                                        class="w-full p-2 border border-outline-variant rounded text-sm" required>
+                                    <input type="time" name="nuevaHora"
+                                        class="w-full p-2 border border-outline-variant rounded text-sm" required>
+                                </div>
+                                <button type="submit"
+                                    class="w-full bg-primary-container text-white py-2 rounded font-bold text-sm hover:bg-primary transition-colors">Actualizar
+                                    Fecha</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="modalCliente"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface-container-lowest rounded-2xl w-full max-w-2xl overflow-hidden">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Registrar Cliente</h4><button
+                    onclick="closeModal('modalCliente')" class="text-white">&times;</button>
+            </div>
+            <form th:action="@{/registrar-cliente}" method="post" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><input type="text" name="identificacion"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="ID" required><input
+                        type="text" name="nombre" class="p-3 border border-outline-variant rounded text-sm"
+                        placeholder="Nombre" required><input type="email" name="correo"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="Correo" required><input
+                        type="text" name="telefono" class="p-3 border border-outline-variant rounded text-sm"
+                        placeholder="Teléfono" required><select name="tipoCliente"
+                        class="p-3 border border-outline-variant rounded text-sm" required>
+                        <option value="">Tipo...</option>
+                        <option value="Comprador">Comprador</option>
+                        <option value="Arrendatario">Arrendatario</option>
+                        <option value="Inversionista">Inversionista</option>
+                    </select><input type="number" name="presupuesto"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="Presupuesto"
+                        required><select name="tipoInmuebleDeseado"
+                        class="p-3 border border-outline-variant rounded text-sm" required>
+                        <option value="">Busca...</option>
+                        <option value="Apartamento">Apartamento</option>
+                        <option value="Casa">Casa</option>
+                        <option value="LocalComercial">Local Comercial</option>
+                    </select><input type="number" name="minHabitaciones"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="Mín. Habitaciones"
+                        required></div><button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-bold">Guardar</button>
+            </form>
+        </div>
+    </div>
+    <div id="modalInmueble"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center shrink-0">
+                <h4 class="text-white font-bold text-lg">Registrar Inmueble</h4><button
+                    onclick="closeModal('modalInmueble')" class="text-white">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <form th:action="@{/registrar-inmueble}" method="post">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"><input type="text" name="codigo"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Código"
+                            required><input type="text" name="direccion"
+                            class="p-3 border border-outline-variant rounded text-sm col-span-1 md:col-span-2"
+                            placeholder="Dirección" required><input type="text" name="ciudad"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Ciudad"
+                            required><input type="text" name="barrioZona"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Zona"
+                            required><select name="finalidad" class="p-3 border border-outline-variant rounded text-sm"
+                            required>
+                            <option value="">Finalidad...</option>
+                            <option value="Venta">Venta</option>
+                            <option value="Arriendo">Arriendo</option>
+                        </select><input type="number" name="precio"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Precio $"
+                            required><input type="number" name="area" step="0.1"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Área m²"
+                            required><input type="number" name="habitaciones"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Habitaciones"
+                            required><input type="number" name="banos"
+                            class="p-3 border border-outline-variant rounded text-sm" placeholder="Baños"
+                            required><select name="estado" class="p-3 border border-outline-variant rounded text-sm"
+                            required>
+                            <option value="">Estado...</option>
+                            <option value="Nuevo">Nuevo</option>
+                            <option value="Usado">Usado</option>
+                            <option value="Remodelado">Remodelado</option>
+                        </select><select name="idAsesor" class="p-3 border border-outline-variant rounded text-sm"
+                            required>
+                            <option value="">Asesor Asignado...</option>
+                            <option th:each="a : ${listaAsesoresActivos}" th:value="${a.id}"
+                                th:text="${a.id} + ' - ' + ${a.nombre}"></option>
+                        </select></div><button type="submit"
+                        class="w-full bg-primary text-white py-3 rounded-lg font-bold">Insertar en Árbol</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="modalAsesor"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface-container-lowest rounded-2xl w-full max-w-md overflow-hidden">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Registrar Asesor</h4><button
+                    onclick="closeModal('modalAsesor')" class="text-white">&times;</button>
+            </div>
+            <form th:action="@{/registrar-asesor}" method="post" class="p-6 space-y-4"><input type="text"
+                    name="identificacion" class="w-full p-3 border border-outline-variant rounded text-sm"
+                    placeholder="ID" required><input type="text" name="nombre"
+                    class="w-full p-3 border border-outline-variant rounded text-sm" placeholder="Nombre"
+                    required><input type="text" name="contacto"
+                    class="w-full p-3 border border-outline-variant rounded text-sm" placeholder="Contacto"
+                    required><select name="especialidad"
+                    class="w-full p-3 border border-outline-variant rounded text-sm" required>
+                    <option value="">Especialidad...</option>
+                    <option value="Norte">Norte</option>
+                    <option value="Centro">Centro</option>
+                    <option value="Sur">Sur</option>
+                    <option value="General">General</option>
+                </select><button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-bold">Guardar</button></form>
+        </div>
+    </div>
+    <div id="modalOperacion"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface-container-lowest rounded-2xl w-full max-w-xl overflow-hidden">
+            <div class="bg-secondary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Cerrar Operación</h4><button
+                    onclick="closeModal('modalOperacion')" class="text-white">&times;</button>
+            </div>
+            <form th:action="@{/registrar-operacion}" method="post" class="p-6">
+                <div class="grid grid-cols-2 gap-4 mb-4"><input type="text" name="idOperacion"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="ID Op" required><select
+                        name="tipoOperacion" class="p-3 border border-outline-variant rounded text-sm" required>
+                        <option value="">Tipo...</option>
+                        <option value="Venta">Venta</option>
+                        <option value="Arriendo">Arriendo</option>
+                        <option value="Renovación de Contrato">Renovación de Contrato</option>
+                        <option value="Cancelación de Negocio">Cancelación de Negocio</option>
+                    </select><input type="text" name="idCliente"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="ID Cliente"
+                        required><input type="text" name="codigoInmueble"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="ID Inmueble"
+                        required><select name="idAsesor"
+                        class="col-span-2 p-3 border-2 border-secondary bg-secondary-container/20 rounded text-sm font-bold"
+                        required>
+                        <option value="">Asignar Cierre A...</option>
+                        <option th:each="a : ${listaAsesoresActivos}" th:value="${a.id}"
+                            th:text="${a.id} + ' - ' + ${a.nombre}"></option>
+                    </select><input type="number" name="valorAcordado"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="Valor $" required><input
+                        type="number" name="porcentajeComision" step="0.1"
+                        class="p-3 border border-outline-variant rounded text-sm" placeholder="Comisión %" required>
+                </div><button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg font-bold">Cerrar
+                    Negocio</button>
+            </form>
+        </div>
+    </div>
+    <div id="modalPedirReco"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface-container-lowest rounded-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Motor IA</h4><button onclick="closeModal('modalPedirReco')"
+                    class="text-white">&times;</button>
+            </div>
+            <form th:action="@{/generar-recomendaciones}" method="post" class="p-6"><input type="text" name="idCliente"
+                    class="w-full p-3 border border-outline-variant rounded text-sm mb-4"
+                    placeholder="Ingresar ID Cliente" required><button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-bold">Generar Match</button></form>
+        </div>
+    </div>
+    <div id="modalReportes" th:if="${mostrarModalReportes}"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="bg-surface-container-lowest rounded-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-primary px-6 py-4 flex justify-between items-center">
+                <h4 class="text-white font-bold text-lg">Reportes (Rankings)</h4><button
+                    onclick="document.getElementById('modalReportes').style.display='none'"
+                    class="text-white">&times;</button>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface flex-grow">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant">
+                    <h5 class="font-bold mb-4 text-primary border-b pb-2">Top Asesores</h5>
+                    <div th:each="a : ${listaRankingAsesores}"
+                        class="text-sm p-3 bg-surface-container-low border border-outline-variant rounded mb-2 font-medium"
+                        th:text="${a}"></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant">
+                    <h5 class="font-bold mb-4 text-primary border-b pb-2">Top Zonas</h5>
+                    <div th:each="z : ${listaActividadZonas}"
+                        class="text-sm p-3 bg-surface-container-low border border-outline-variant rounded mb-2 font-medium"
+                        th:text="${z}"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="modalResultadosBusqueda" th:if="${mostrarModalBusqueda}"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-7xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div
+                class="bg-surface-container-lowest px-8 py-6 flex justify-between items-center border-b border-outline-variant shrink-0">
+                <div>
+                    <h1 class="font-headline-lg text-2xl text-primary font-bold">Resultados de Búsqueda</h1>
+                    <p class="font-body-sm text-sm text-on-surface-variant mt-1">Propiedades encontradas</p>
+                </div>
+                <button onclick="document.getElementById('modalResultadosBusqueda').style.display='none'"
+                    class="text-on-surface hover:text-error text-2xl"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="p-8 overflow-y-auto flex-grow bg-surface-bright">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <article th:each="inm : ${listaResultadosBusquedaObj}"
+                        class="bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow border border-outline-variant/50 overflow-hidden flex flex-col group">
+                        <div class="relative h-48 w-full overflow-hidden bg-gray-100">
+                            <img th:src="${inm['imagen']}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                alt="Propiedad">
+                            <div class="absolute top-3 left-3 bg-surface-container-lowest/90 px-2 py-1 rounded-sm text-[10px] text-primary-container font-bold uppercase tracking-widest shadow-sm"
+                                th:text="${inm['estado']}"></div>
+                        </div>
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h3 class="font-headline-md text-xl font-bold text-primary-container mb-1"
+                                th:text="'$' + ${inm['precio']}"></h3>
+                            <p class="font-body-md text-xs text-on-surface-variant line-clamp-1 mb-3 flex-grow"
+                                th:text="${inm['direccion']} + ', ' + ${inm['barrioZona']}"></p>
+                            <div class="flex gap-1 flex-wrap mb-3">
+                                <span
+                                    class="bg-surface-variant/50 px-2 py-1 rounded-sm text-[10px] font-bold text-on-surface border border-outline-variant/20"
+                                    th:text="${inm['habitaciones']} + ' Hab'"></span>
+                                <span
+                                    class="bg-surface-variant/50 px-2 py-1 rounded-sm text-[10px] font-bold text-on-surface border border-outline-variant/20"
+                                    th:text="${inm['banos']} + ' Baños'"></span>
+                            </div>
+                            <div class="mt-auto pt-3 border-t border-outline-variant/30 flex items-center justify-between gap-2"
+                                th:if="${rolActual == 'CLIENTE'}">
+                                <div class="flex gap-1">
+                                    <form th:action="@{/marcar-favorito}" method="post" class="m-0"><input type="hidden"
+                                            name="idCliente" th:value="${idAsociadoActual}"><input type="hidden"
+                                            name="codigoInmueble" th:value="${inm['codigo']}"><button type="submit"
+                                            class="w-8 h-8 rounded-full border border-primary-container flex items-center justify-center text-primary-container hover:bg-surface-container-low transition-colors"
+                                            title="Guardar"><span
+                                                class="material-symbols-outlined text-[16px]">favorite</span></button>
+                                    </form>
+                                    <form th:action="@{/descartar-inmueble}" method="post" class="m-0"><input
+                                            type="hidden" name="idCliente" th:value="${idAsociadoActual}"><input
+                                            type="hidden" name="codigoInmueble" th:value="${inm['codigo']}"><button
+                                            type="submit"
+                                            class="w-8 h-8 rounded-full border border-outline flex items-center justify-center text-outline hover:text-error hover:border-error hover:bg-error-container/20 transition-colors"
+                                            title="Descartar"><span
+                                                class="material-symbols-outlined text-[16px]">visibility_off</span></button>
+                                    </form>
+                                </div>
+                                <button type="button" th:data-codigo="${inm['codigo']}"
+                                    onclick="abrirAgendarVisita(this.getAttribute('data-codigo'))"
+                                    class="flex-grow bg-secondary hover:bg-secondary/90 text-white font-label-md text-xs font-bold py-2 rounded-lg transition-colors shadow-sm">Agendar</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalResultadosReco" th:if="${mostrarModalRecos}"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-[1280px] overflow-hidden flex flex-col max-h-[90vh]">
+            <div
+                class="bg-primary px-8 py-6 flex justify-between items-center border-b border-outline-variant shrink-0">
+                <h1 class="font-headline-lg text-2xl text-secondary-fixed font-bold">IA Matches <span
+                        class="text-sm font-normal text-inverse-on-surface ml-2"
+                        th:text="'Para: ' + ${clienteReco}"></span></h1>
+                <button onclick="document.getElementById('modalResultadosReco').style.display='none'"
+                    class="text-white hover:text-error text-2xl"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="p-8 overflow-y-auto flex-grow bg-surface-bright">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <article th:each="inm : ${listaSugerenciasObj}"
+                        class="bg-surface-container-lowest border-2 border-secondary-fixed/50 rounded-xl overflow-hidden shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+                        <div class="relative h-56 w-full overflow-hidden bg-gray-100">
+                            <img th:src="${inm['imagen']}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                alt="Match">
+                            <div
+                                class="absolute top-4 left-4 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-[14px]">auto_awesome</span> MATCH
+                            </div>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-headline-md text-2xl font-bold text-primary mb-1"
+                                th:text="'$' + ${inm['precio']}"></h3>
+                            <p class="font-body-md text-sm text-on-surface-variant mb-4 flex-grow"
+                                th:text="${inm['direccion']} + ' (' + ${inm['codigo']} + ')'"></p>
+                            <div class="flex gap-2 flex-wrap mb-4">
+                                <span
+                                    class="bg-surface-container px-3 py-1.5 rounded-sm text-xs text-on-surface font-bold"
+                                    th:text="${inm['habitaciones']} + ' Hab'"></span>
+                                <span
+                                    class="bg-surface-container px-3 py-1.5 rounded-sm text-xs text-on-surface font-bold"
+                                    th:text="${inm['banos']} + ' Baños'"></span>
+                            </div>
+                            <div class="mt-auto pt-4 border-t border-outline-variant/30 flex items-center justify-between gap-3"
+                                th:if="${rolActual == 'CLIENTE'}">
+                                <button type="button" th:data-codigo="${inm['codigo']}"
+                                    onclick="abrirAgendarVisita(this.getAttribute('data-codigo'))"
+                                    class="w-full bg-primary text-white text-sm font-bold py-3 px-6 rounded-lg hover:bg-primary-container transition-colors shadow-sm">Contactar
+                                    Agente / Agendar</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPerfil" th:if="${mostrarModalPerfil}"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-[1280px] overflow-hidden flex flex-col max-h-[95vh]">
+            <div
+                class="bg-surface-container-lowest px-8 py-6 flex justify-between items-center border-b border-outline-variant shrink-0">
+                <h1 class="font-headline-lg text-2xl text-primary font-bold">Expediente del Cliente: <span
+                        class="text-secondary" th:text="${nombreClientePerfil}"></span></h1>
+                <button onclick="document.getElementById('modalPerfil').style.display='none'"
+                    class="text-on-surface hover:text-error text-2xl"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow bg-surface-bright grid grid-cols-1 gap-10">
+                <section>
+                    <h2
+                        class="font-headline-md text-xl mb-4 text-primary flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                        <span class="material-symbols-outlined text-secondary">star</span> Inmuebles Favoritos
+                    </h2>
+                    <p th:if="${#lists.isEmpty(listaFavoritosObj)}" class="text-sm text-outline">Sin inmuebles en
+                        favoritos.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <article th:each="inm : ${listaFavoritosObj}"
+                            class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl overflow-hidden shadow-sm flex flex-col">
+                            <div class="h-32 overflow-hidden relative"><img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover"></div>
+                            <div class="p-3 flex-grow flex flex-col">
+                                <h3 class="font-bold text-base text-primary" th:text="'$' + ${inm['precio']}"></h3>
+                                <p class="text-[10px] text-on-surface-variant flex-grow" th:text="${inm['direccion']}">
+                                </p>
+                                <div class="mt-2 pt-2 border-t border-outline-variant/30 flex gap-2"
+                                    th:if="${rolActual == 'CLIENTE'}">
+                                    <button type="button" th:data-codigo="${inm['codigo']}"
+                                        onclick="abrirAgendarVisita(this.getAttribute('data-codigo'))"
+                                        class="w-full bg-secondary text-white text-[10px] font-bold py-1.5 rounded hover:bg-secondary-container hover:text-on-secondary-container">Agendar</button>
+                                    <form th:action="@{/descartar-inmueble}" method="post"><input type="hidden"
+                                            name="idCliente" th:value="${idAsociadoActual}"><input type="hidden"
+                                            name="codigoInmueble" th:value="${inm['codigo']}"><button type="submit"
+                                            class="px-2 py-1.5 border border-outline rounded text-error hover:bg-error-container text-[10px]"
+                                            title="Descartar">🚫</button></form>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section>
+                    <h2
+                        class="font-headline-md text-xl mb-4 text-primary flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                        <span class="material-symbols-outlined text-primary-container">visibility</span> Historial de
+                        Vistos
+                    </h2>
+                    <p th:if="${#lists.isEmpty(listaConsultasObj)}" class="text-sm text-outline">Sin inmuebles
+                        consultados.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <article th:each="inm : ${listaConsultasObj}"
+                            class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl overflow-hidden shadow-sm flex flex-col">
+                            <div class="h-32 overflow-hidden relative"><img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover grayscale opacity-80"></div>
+                            <div class="p-3 flex-grow flex flex-col">
+                                <h3 class="font-bold text-base text-primary" th:text="'$' + ${inm['precio']}"></h3>
+                                <p class="text-[10px] text-on-surface-variant" th:text="${inm['codigo']}"></p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section>
+                    <h2
+                        class="font-headline-md text-xl mb-4 text-error flex items-center gap-2 border-b border-error/30 pb-2">
+                        <span class="material-symbols-outlined">block</span> Inmuebles Descartados
+                    </h2>
+                    <p th:if="${#lists.isEmpty(listaDescartadosObj)}" class="text-sm text-outline">Sin inmuebles
+                        descartados.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <article th:each="inm : ${listaDescartadosObj}"
+                            class="bg-error-container/20 border border-error/30 rounded-xl overflow-hidden shadow-sm flex flex-col opacity-80">
+                            <div class="h-24 overflow-hidden relative"><img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover grayscale"></div>
+                            <div class="p-3 flex-grow flex flex-col">
+                                <h3 class="font-bold text-sm text-error line-through" th:text="'$' + ${inm['precio']}">
+                                </h3>
+                                <p class="text-[10px] text-on-surface-variant" th:text="${inm['codigo']}"></p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section>
+                    <h2
+                        class="font-headline-md text-xl mb-4 text-primary flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                        <span class="material-symbols-outlined text-secondary-container">handshake</span> Negocios
+                        Activos y Cierres
+                    </h2>
+                    <p th:if="${#lists.isEmpty(listaIntencionesObj) and #lists.isEmpty(listaNegociadosObj)}"
+                        class="text-sm text-outline">Sin negocios registrados.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <article th:each="inm : ${listaIntencionesObj}"
+                            class="bg-primary border border-primary-container rounded-xl overflow-hidden shadow-sm flex flex-col text-white">
+                            <div class="h-32 overflow-hidden relative"><img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover opacity-60"></div>
+                            <div class="p-4 relative">
+                                <span
+                                    class="bg-secondary text-white text-[10px] font-bold px-2 py-1 rounded uppercase absolute -top-4 left-4 shadow-md">Intención
+                                    Activa</span>
+                                <h3 class="font-bold text-xl mt-2" th:text="'$' + ${inm['precio']}"></h3>
+                                <p class="text-xs text-inverse-on-surface" th:text="${inm['direccion']}"></p>
+                            </div>
+                        </article>
+                        <article th:each="inm : ${listaNegociadosObj}"
+                            class="bg-secondary border border-secondary-container rounded-xl overflow-hidden shadow-sm flex flex-col text-white">
+                            <div class="h-32 overflow-hidden relative"><img th:src="${inm['imagen']}"
+                                    class="w-full h-full object-cover opacity-60"></div>
+                            <div class="p-4 relative">
+                                <span
+                                    class="bg-white text-secondary text-[10px] font-bold px-2 py-1 rounded uppercase absolute -top-4 left-4 shadow-md">Negocio
+                                    Cerrado</span>
+                                <h3 class="font-bold text-xl mt-2" th:text="'$' + ${inm['precio']}"></h3>
+                                <p class="text-xs text-white/80" th:text="${inm['direccion']}"></p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <script th:inline="javascript">
-        function initTree() {
+    function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('hidden'); }
+    }
+
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.add('hidden'); }
+    }
+
+    function abrirAgendarVisita(codigo) {
+        document.getElementById('visitaCodigoInmueble').value = codigo;
+        openModal('modalVisitaCliente');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const diagramDiv = document.getElementById("myDiagramDiv");
+
+        if (diagramDiv) {
             const $ = go.GraphObject.make;
+
             window.myDiagram = $(go.Diagram, "myDiagramDiv", {
+                initialAutoScale: go.Diagram.Uniform,
+                contentAlignment: go.Spot.Center,
+                isReadOnly: true,
+                allowZoom: false,
+                allowMove: false,
+                allowHorizontalScroll: false,
+                allowVerticalScroll: false,
+
                 layout: $(go.TreeLayout, {
-                    angle: 90, layerSpacing: 40, nodeSpacing: 60,
-                    compaction: go.TreeLayout.CompactionNone,
+                    angle: 90,
+                    layerSpacing: 55,
+                    nodeSpacing: 60,
                     alignment: go.TreeLayout.AlignmentCenterChildren,
                     sorting: go.TreeLayout.SortingAscending,
                     comparer: (a, b) => {
-                        const da = a.node.data.dir;
-                        const db = b.node.data.dir;
-                        if (da === 'L') return -1;
-                        if (db === 'L') return 1;
+                        if (a.node.data.dir === 'L') return -1;
+                        if (b.node.data.dir === 'L') return 1;
                         return 0;
                     }
                 })
             });
 
-            // Hice el círculo un poco más ancho (60x60) para que quepa el precio
+            // Nodos visibles (mejorados)
             myDiagram.nodeTemplate =
                 $(go.Node, "Auto",
-                    $(go.Shape, "Circle", { stroke: "#dc3545", strokeWidth: 2.5, desiredSize: new go.Size(85, 85) },
-                        new go.Binding("fill", "", () => document.body.classList.contains("dark-mode") ? "#2a2a2a" : "white")),
-                    $(go.TextBlock, { margin: 2, font: "bold 11px Segoe UI", textAlign: "center" },
-                        new go.Binding("text"),
-                        new go.Binding("stroke", "", () => document.body.classList.contains("dark-mode") ? "white" : "#333"))
+                    $(go.Shape, "RoundedRectangle", {
+                        stroke: "#28211a",
+                        strokeWidth: 2,
+                        fill: "white",
+                        minSize: new go.Size(125, 60),
+                        parameter1: 8
+                    }),
+                    $(go.TextBlock, {
+                        margin: 8,
+                        font: "bold 15px Inter, sans-serif",
+                        textAlign: "center",
+                        stroke: "#28211a",
+                        wrap: go.TextBlock.WrapFit
+                    },
+                        new go.Binding("text"))
                 );
 
+            // Nodos invisibles (mantienen estructura)
             myDiagram.nodeTemplateMap.add("invisible",
-                $(go.Node, { selectable: false, pickable: false, opacity: 0, desiredSize: new go.Size(85, 85) })
+                $(go.Node, {
+                    selectable: false,
+                    pickable: false,
+                    opacity: 0,
+                    desiredSize: new go.Size(125, 60)
+                })
             );
 
+            // Líneas
             myDiagram.linkTemplate =
-                $(go.Link, { routing: go.Link.Normal, corner: 5 },
-                    $(go.Shape, { strokeWidth: 1.5, stroke: "#bbb" },
-                        new go.Binding("visible", "toNode", (n) => n.data.category !== "invisible")
-                    )
+                $(go.Link,
+                    { routing: go.Link.Normal },
+                    $(go.Shape, {
+                        strokeWidth: 1.5,
+                        stroke: "#cfc5bc"
+                    })
                 );
 
-            const rawData = JSON.parse([[${ treeJsonData }]]);
-            const nodeDataArray = [];
+            const rawData = JSON.parse(/*[[${treeJsonData}]]*/ '[]');
 
-            rawData.forEach(node => {
-                nodeDataArray.push(node);
-                const children = rawData.filter(c => c.parent === node.key);
-                const hasLeft = children.some(c => c.dir === "L");
-                const hasRight = children.some(c => c.dir === "R");
+            if (rawData && rawData.length > 0) {
+                const nodeDataArray = [];
 
-                if (children.length > 0) {
-                    if (!hasLeft) nodeDataArray.push({ key: node.key + "_L", parent: node.key, dir: "L", category: "invisible" });
-                    if (!hasRight) nodeDataArray.push({ key: node.key + "_R", parent: node.key, dir: "R", category: "invisible" });
-                }
-            });
+                rawData.forEach(node => {
+                    nodeDataArray.push(node);
 
-            myDiagram.model = new go.TreeModel(nodeDataArray);
-        }
-        window.addEventListener('DOMContentLoaded', initTree);
-    </script>
+                    const children = rawData.filter(c => c.parent === node.key);
 
-    <script>
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-            if (window.myDiagram) {
-                myDiagram.nodes.each(node => node.updateTargetBindings());
+                    // ESTA ES LA LÓGICA ORIGINAL CORRECTA
+                    if (children.length > 0) {
+                        if (!children.some(c => c.dir === "L")) {
+                            nodeDataArray.push({
+                                key: node.key + "_L",
+                                parent: node.key,
+                                dir: "L",
+                                category: "invisible"
+                            });
+                        }
+
+                        if (!children.some(c => c.dir === "R")) {
+                            nodeDataArray.push({
+                                key: node.key + "_R",
+                                parent: node.key,
+                                dir: "R",
+                                category: "invisible"
+                            });
+                        }
+                    }
+                });
+
+                myDiagram.model = new go.TreeModel(nodeDataArray);
+
+                setTimeout(() => {
+                    myDiagram.zoomToFit();
+                    myDiagram.centerRect(myDiagram.documentBounds);
+                }, 200);
             }
         }
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-        });
-    </script>
 
-    <script th:if="${mostrarModalRecos}">
-        window.addEventListener('DOMContentLoaded', () => {
-            var modalResultados = new bootstrap.Modal(document.getElementById('modalResultadosReco'));
-            modalResultados.show();
-        });
-    </script>
+        // ALERTA REPROGRAMAR
+        const visitaDuplicada = /*[[${visitaDuplicada}]]*/ null;
+        if (visitaDuplicada) {
+            if (confirm("La visita ya se encuentra registrada, si desea reprogramar la cita presione 'Aceptar'")) {
+                document.getElementById('reproCodigoInmueble').value = visitaDuplicada;
+                openModal('modalReprogramarCliente');
+            }
+        }
+    });
+</script>
 
-    <script th:if="${mostrarModalReportes}">
-        window.addEventListener('DOMContentLoaded', () => {
-            var modalReportes = new bootstrap.Modal(document.getElementById('modalReportes'));
-            modalReportes.show();
-        });
-    </script>
+    <div id="aura-chat-widget" class="fixed bottom-6 right-6 z-[300]">
+        <button onclick="toggleChat()" id="chat-button"
+            class="w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform border-2 border-surface-container-lowest">
+            <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+        </button>
 
-    <script th:if="${mostrarModalBusqueda}">
-        window.addEventListener('DOMContentLoaded', () => {
-            var modalBusqueda = new bootstrap.Modal(document.getElementById('modalResultadosBusqueda'));
-            modalBusqueda.show();
-        });
-    </script>
+        <div id="chat-window"
+            class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col h-[450px]">
+            <div class="bg-primary px-4 py-3 flex justify-between items-center shadow-md z-10">
+                <div class="flex items-center gap-2 text-white">
+                    <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+                    <span class="font-bold text-sm tracking-wide">AURA Asistente IA</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-error transition-colors"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
 
-    <script th:if="${mostrarModalPerfil}">
-        window.addEventListener('DOMContentLoaded', () => {
-            var modalPerfil = new bootstrap.Modal(document.getElementById('modalPerfil'));
-            modalPerfil.show();
-        });
-    </script>
+            <div id="chat-messages"
+                class="flex-grow p-4 overflow-y-auto bg-surface-bright flex flex-col gap-3 text-sm custom-scrollbar">
+                <div
+                    class="bg-surface-container-low text-on-surface p-3 rounded-xl rounded-tl-none self-start max-w-[85%] shadow-sm border border-outline-variant/30 leading-relaxed">
+                    ¡Bienvenido a AURA! Soy tu asistente de inteligencia artificial. ¿Buscas comprar, arrendar o tienes
+                    alguna duda?
+                </div>
+            </div>
 
-    <script th:if="${mostrarModalGerencial}">
-        window.addEventListener('DOMContentLoaded', () => {
-            var modalGerencial = new bootstrap.Modal(document.getElementById('modalGerencial'));
-            modalGerencial.show();
-        });
-    </script>
+            <div class="p-3 bg-white border-t border-outline-variant flex gap-2">
+                <input type="text" id="chat-input"
+                    class="flex-grow p-3 text-sm border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none shadow-inner"
+                    placeholder="Escribe tu mensaje..." onkeypress="handleChatEnter(event)">
+                <button onclick="enviarMensajeIA()"
+                    class="bg-secondary text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.classList.toggle('hidden');
+            if (!win.classList.contains('hidden')) {
+                document.getElementById('chat-input').focus();
+            }
+        }
+
+        function handleChatEnter(e) {
+            if (e.key === 'Enter') enviarMensajeIA();
+        }
+
+        async function enviarMensajeIA() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chat-messages');
+
+            // 1. Mostrar mensaje del usuario
+            chatBox.innerHTML += `<div class="bg-primary text-white p-3 rounded-xl rounded-tr-none self-end max-w-[85%] shadow-sm leading-relaxed">${msg}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 2. Mostrar indicador de "escribiendo..."
+            const typingId = 'typing-' + Date.now();
+            chatBox.innerHTML += `<div id="${typingId}" class="text-xs text-on-surface-variant italic self-start mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-[14px] animate-spin">sync</span> AURA está escribiendo...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 3. Enviar al Backend (AJAX / Fetch API)
+            try {
+                const formData = new URLSearchParams();
+                formData.append('mensaje', msg);
+
+                // Simular un pequeño retraso para que se sienta como una IA pensando (800ms)
+                setTimeout(async () => {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    // Quitar "escribiendo..." y mostrar respuesta
+                    document.getElementById(typingId).remove();
+                    chatBox.innerHTML += `<div class="bg-surface-container-low text-on-surface p-3 rounded-xl rounded-tl-none self-start max-w-[85%] shadow-sm border border-outline-variant/30 leading-relaxed">${data.respuesta}</div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 800);
+
+            } catch (e) {
+                document.getElementById(typingId).remove();
+                chatBox.innerHTML += `<div class="bg-error-container text-error p-3 rounded-xl rounded-tl-none self-start max-w-[85%] shadow-sm">Error de conexión. Intenta de nuevo.</div>`;
+            }
+        }
+    </script>
 </body>
-<div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Registrar Nuevo Cliente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/registrar-cliente}" method="post">
-                <div class="modal-body">
-                    <div class="row g-2">
-                        <div class="col-md-6"><input type="text" name="identificacion" class="form-control"
-                                placeholder="Identificación" required></div>
-                        <div class="col-md-6"><input type="text" name="nombre" class="form-control"
-                                placeholder="Nombre Completo" required></div>
-                        <div class="col-md-6"><input type="email" name="correo" class="form-control"
-                                placeholder="Correo Electrónico" required></div>
-                        <div class="col-md-6"><input type="text" name="telefono" class="form-control"
-                                placeholder="Teléfono" required></div>
-                        <div class="col-md-6">
-                            <select name="tipoCliente" class="form-control" required>
-                                <option value="">Tipo de Cliente...</option>
-                                <option value="Comprador">Comprador</option>
-                                <option value="Arrendatario">Arrendatario</option>
-                                <option value="Inversionista">Inversionista</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6"><input type="number" name="presupuesto" class="form-control"
-                                placeholder="Presupuesto ($)" required></div>
-                        <div class="col-md-6">
-                            <select name="tipoInmuebleDeseado" class="form-control" required>
-                                <option value="Apartamento">Apartamento</option>
-                                <option value="Casa">Casa</option>
-                                <option value="LocalComercial">Local Comercial</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6"><input type="number" name="minHabitaciones" class="form-control"
-                                placeholder="Mínimo de Habitaciones" required></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar Cliente</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalInmueble" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content text-dark">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Registrar Nuevo Inmueble</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/registrar-inmueble}" method="post">
-                <div class="modal-body">
-                    <div class="row g-2">
-                        <div class="col-md-4"><input type="text" name="codigo" class="form-control"
-                                placeholder="Código (Ej: APT-003)" required></div>
-                        <div class="col-md-8"><input type="text" name="direccion" class="form-control"
-                                placeholder="Dirección" required></div>
-                        <div class="col-md-6"><input type="text" name="ciudad" class="form-control" placeholder="Ciudad"
-                                required></div>
-                        <div class="col-md-6"><input type="text" name="barrioZona" class="form-control"
-                                placeholder="Barrio / Zona" required></div>
-
-                        <div class="col-md-4">
-                            <select name="finalidad" class="form-control" required>
-                                <option value="Venta">Venta</option>
-                                <option value="Arriendo">Arriendo</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4"><input type="number" name="precio" class="form-control"
-                                placeholder="Precio Total ($)" required></div>
-                        <div class="col-md-4"><input type="number" step="0.1" name="area" class="form-control"
-                                placeholder="Área (m²)" required></div>
-
-                        <div class="col-md-4"><input type="number" name="habitaciones" class="form-control"
-                                placeholder="Habitaciones" required></div>
-                        <div class="col-md-4"><input type="number" name="banos" class="form-control" placeholder="Baños"
-                                required></div>
-                        <div class="col-md-4">
-                            <select name="estado" class="form-control" required>
-                                <option value="Nuevo">Nuevo</option>
-                                <option value="Usado">Usado</option>
-                                <option value="Remodelado">Remodelado</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label small">Asesor Responsable</label>
-                    <select name="idAsesor" class="form-control" required>
-                        <option value="">Seleccione un asesor...</option>
-                        <option th:each="asesor : ${listaAsesoresActivos}" th:value="${asesor.id}"
-                            th:text="${asesor.nombre} + ' - ' + ${asesor.especialidadZona}"></option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Inmueble</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalPedirReco" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content text-dark">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">Generar Recomendación</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/generar-recomendaciones}" method="post">
-                <div class="modal-body">
-                    <label class="form-label text-secondary">ID del Cliente:</label>
-                    <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-info text-white w-100">Generar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalResultadosReco" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark border-info">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">💡 Sugerencias para: <span th:text="${clienteReco}"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-secondary small">El sistema analizó las zonas de interés, historial de visitas y
-                    presupuesto cruzando el Grafo y el Árbol Binario.</p>
-                <ul class="list-group">
-                    <li th:each="reco : ${listaSugerencias}" class="list-group-item list-group-item-info"
-                        th:text="${reco}"></li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalReportes" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content text-dark">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title">📊 Panel de Inteligencia de Negocio</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="nav nav-tabs" id="reportTabs" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" id="asesores-tab" data-bs-toggle="tab"
-                            data-bs-target="#asesores" type="button">Top Asesores</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="zonas-tab" data-bs-toggle="tab" data-bs-target="#zonas"
-                            type="button">Actividad por Zonas</button>
-                    </li>
-                </ul>
-                <div class="tab-content p-3" id="reportTabsContent">
-                    <div class="tab-pane fade show active" id="asesores">
-                        <p class="text-muted small">Ordenados por efectividad de cierre (Lógica de Árbol Binario).</p>
-                        <ul class="list-group list-group-flush">
-                            <li th:each="asesor : ${listaRankingAsesores}" class="list-group-item" th:text="${asesor}">
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="tab-pane fade" id="zonas">
-                        <p class="text-muted small">Zonas con mayor flujo de visitas (Análisis de Listas).</p>
-                        <ul class="list-group list-group-flush">
-                            <li th:each="zona : ${listaActividadZonas}" class="list-group-item" th:text="${zona}"></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Reporte</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalFiltros" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark">
-            <div class="modal-header bg-secondary text-white">
-                <h5 class="modal-title">Filtros de Búsqueda</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/buscar-inmuebles}" method="post">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small">Precio Mínimo</label>
-                            <input type="number" name="precioMin" class="form-control" value="0">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Precio Máximo</label>
-                            <input type="number" name="precioMax" class="form-control" value="500000000">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label small">Zona / Barrio</label>
-                            <input type="text" name="zona" class="form-control" placeholder="Ej: Norte" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label small">Mínimo de Habitaciones</label>
-                            <input type="number" name="minHabitaciones" class="form-control" value="1">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-secondary w-100">Buscar Coincidencias</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalResultadosBusqueda" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark border-secondary">
-            <div class="modal-header bg-secondary text-white">
-                <h5 class="modal-title">🔎 Resultados de la Búsqueda</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="list-group">
-                    <li th:each="res : ${listaResultadosBusqueda}" class="list-group-item list-group-item-secondary"
-                        th:text="${res}"></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalOperacion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark border-success">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">🤝 Registrar Cierre / Operación</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/registrar-operacion}" method="post">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small">ID Operación</label>
-                            <input type="text" name="idOperacion" class="form-control" placeholder="Ej: OP-001"
-                                required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Tipo de Operación</label>
-                            <select name="tipoOperacion" class="form-control" required>
-                                <option value="Venta">Venta</option>
-                                <option value="Arriendo">Arriendo</option>
-                                <option value="Renovación de Contrato">Renovación de Contrato</option>
-                                <option value="Cancelación de Negocio">Cancelación de Negocio</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">ID del Cliente</label>
-                            <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Código del Inmueble</label>
-                            <input type="text" name="codigoInmueble" class="form-control" placeholder="Ej: APT-001"
-                                required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Valor Acordado ($)</label>
-                            <input type="number" name="valorAcordado" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Comisión (%)</label>
-                            <input type="number" step="0.1" name="porcentajeComision" class="form-control"
-                                placeholder="Ej: 3.5" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Cerrar Negocio</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalVisita" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark border-primary">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">📅 Agendar Visita a Inmueble</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/agendar-visita}" method="post">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small">ID de la Visita</label>
-                            <input type="text" name="idVisita" class="form-control" placeholder="Ej: VIS-001" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label small">ID del Cliente</label>
-                            <input type="text" name="idCliente" class="form-control" placeholder="Ej: C-001" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Código del Inmueble</label>
-                            <input type="text" name="codigoInmueble" class="form-control" placeholder="Ej: APT-001"
-                                required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Fecha</label>
-                            <input type="date" name="fecha" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Hora</label>
-                            <input type="time" name="hora" class="form-control" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label small text-danger fw-bold">Nivel de Urgencia (1 = Normal, 5 =
-                                VIP)</label>
-                            <input type="number" name="nivelUrgencia" class="form-control border-danger" min="1" max="5"
-                                value="1" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Agendar en Cola</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content text-dark border-warning">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">⭐ Favoritos de: <span th:text="${nombreClientePerfil}"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p th:if="${#lists.isEmpty(listaFavoritos)}" class="text-muted small">Este cliente aún no tiene
-                    favoritos.</p>
-                <ul class="list-group list-group-flush">
-                    <li th:each="fav : ${listaFavoritos}" class="list-group-item small" th:text="${fav}"></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalAsesor" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content text-dark border-dark">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title">👔 Registrar Nuevo Asesor</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/registrar-asesor}" method="post">
-                <div class="modal-body">
-                    <div class="row g-2">
-                        <div class="col-md-6"><input type="text" name="identificacion" class="form-control"
-                                placeholder="ID Asesor" required></div>
-                        <div class="col-md-6"><input type="text" name="nombre" class="form-control" placeholder="Nombre"
-                                required></div>
-                        <div class="col-md-6"><input type="text" name="contacto" class="form-control"
-                                placeholder="Teléfono/Contacto" required></div>
-                        <div class="col-md-6">
-                            <select name="especialidad" class="form-control" required>
-                                <option value="">Especialidad / Zona...</option>
-                                <option value="Norte">Norte</option>
-                                <option value="Centro">Centro</option>
-                                <option value="Sur">Sur</option>
-                                <option value="General">General</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-dark">Guardar Asesor</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalGerencial" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content text-dark border-danger">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">📈 Panel Gerencial y Comportamientos</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-
-                <ul class="nav nav-tabs" id="gerencialTabs" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vips"
-                            type="button">Clientes VIP (Alta Prioridad)</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ranking"
-                            type="button">Ranking de Zonas</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-simulacion"
-                            type="button">Simulación de Demanda</button>
-                    </li>
-                </ul>
-
-                <div class="tab-content p-3 border border-top-0 rounded-bottom">
-                    <div class="tab-pane fade show active" id="tab-vips">
-                        <p class="text-muted small">Algoritmo: Clientes con estado activo, más de 3 favoritos y más de 3
-                            consultas.</p>
-                        <ul class="list-group list-group-flush">
-                            <li th:each="vip : ${listaVips}" class="list-group-item fw-bold text-success"
-                                th:text="${vip}"></li>
-                        </ul>
-                    </div>
-
-                    <div class="tab-pane fade" id="tab-ranking">
-                        <p class="text-muted small">Basado en el conteo histórico de visitas por inmueble.</p>
-                        <ul class="list-group list-group-flush">
-                            <li th:each="zona : ${listaRankingZonas}" class="list-group-item" th:text="${zona}"></li>
-                        </ul>
-                    </div>
-
-                    <div class="tab-pane fade" id="tab-simulacion">
-                        <p class="text-muted small">Proyección de crecimiento basada en densidad de visitas vs oferta
-                            total.</p>
-                        <div class="alert alert-info fw-bold text-center fs-5" th:text="${resultadoSimulacion}"></div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Panel</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 </html>

@@ -1,0 +1,8 @@
+usuario,contraseña,rol,idAsociado
+admin,admin123,ADMIN,ADMIN-01
+juli,1234,ASESOR,A-101
+juan,1234,ASESOR,A-102
+andres,pass,CLIENTE,C-001
+nathaly,pass,CLIENTE,C-002
+
+majo,1023,CLIENTE,1023

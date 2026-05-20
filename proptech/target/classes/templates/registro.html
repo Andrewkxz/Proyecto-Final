@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html class="light" lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>AURA | Registro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="bg-[#fcf9f8] min-h-screen flex items-center justify-center font-[Plus Jakarta Sans]">
+
+    <div class="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-10">
+        <h1 class="text-3xl font-bold text-center mb-8 text-[#28211a]">Registro de Cliente</h1>
+
+        <form th:action="@{/registro}" method="post" class="grid grid-cols-2 gap-4">
+
+            <input type="text" name="username" placeholder="Nombre de usuario" required class="p-3 border rounded-lg">
+            <input type="password" name="password" placeholder="Contraseña" required class="p-3 border rounded-lg">
+
+            <input type="text" name="identificacion" placeholder="Identificación" required
+                class="p-3 border rounded-lg">
+            <input type="text" name="nombre" placeholder="Nombre completo" required class="p-3 border rounded-lg">
+
+            <input type="email" name="correo" placeholder="Correo" required class="p-3 border rounded-lg">
+            <input type="text" name="telefono" placeholder="Teléfono" required class="p-3 border rounded-lg">
+
+            <select name="tipoCliente" required class="p-3 border rounded-lg">
+                <option value="">Tipo de cliente</option>
+                <option value="Comprador">Comprador</option>
+                <option value="Arrendador">Arrendador</option>
+                <option value="Inversionista">Inversionista</option>
+            </select>
+
+            <input type="number" name="presupuesto" placeholder="Presupuesto" required class="p-3 border rounded-lg">
+
+            <select name="tipoInmuebleDeseado" required class="p-3 border rounded-lg">
+                <option value="">Tipo inmueble deseado</option>
+                <option value="Casa">Casa</option>
+                <option value="Bodega">Bodega</option>
+                <option value="Lote">Lote</option>
+                <option value="Oficina">Oficina</option>
+                <option value="Local Comercial">Local Comercial</option>
+            </select>
+
+            <input type="number" name="minHabitaciones" placeholder="Mínimo habitaciones" required
+                class="p-3 border rounded-lg">
+
+            <div class="col-span-2">
+                <button type="submit" class="w-full py-4 bg-[#28211a] text-white rounded-full font-bold">
+                    Registrarme
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-6">
+            <a th:href="@{/login}" class="text-sm text-gray-600 hover:underline">
+                ¿Ya tienes cuenta? Inicia sesión
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>
