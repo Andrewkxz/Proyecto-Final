@@ -76,6 +76,14 @@ public class Queue<T> {
 		size = 0;
 	}
 
+	public void enqueue(T data) {
+		offer(data);
+	}
+
+	public T dequeue() {
+		return poll();
+	}
+
 	/**
 	 * @return first element of the Queue
 	 */

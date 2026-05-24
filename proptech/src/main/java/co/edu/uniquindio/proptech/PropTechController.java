@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Autowired;
 import co.edu.uniquindio.proptech.BinarySearchTree.Node;
 import jakarta.servlet.http.HttpSession;
 
@@ -23,6 +24,9 @@ public class PropTechController {
 
     private static Inmobiliaria plataforma = new Inmobiliaria();
     private static boolean datosInicializados = false;
+
+    @Autowired
+    private GeminiService geminiService;
 
     public PropTechController() {
         if (!datosInicializados) {
@@ -555,76 +559,27 @@ public class PropTechController {
         return "redirect:/";
     }
 
+// =====================================================================================
+    // 4. BÚSQUEDAS, IA Y REPORTES (CONTINUACIÓN)
     // =====================================================================================
-    // 4. BÚSQUEDAS, IA Y REPORTES
-    // =====================================================================================
-    @PostMapping("/buscar-inmuebles")
-    public String buscarInmuebles(
-            @RequestParam(defaultValue = "0") double precioMin,
-            @RequestParam(defaultValue = "1000000000") double precioMax,
-            @RequestParam String zona, @RequestParam(defaultValue = "0") int minHabitaciones,
-            RedirectAttributes redirectAttrs) {
-        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<Inmueble> resultados = plataforma
-                .buscarInmuebleConFiltros(precioMin, precioMax, zona, minHabitaciones);
-        if (resultados.isEmpty())
-            redirectAttrs.addFlashAttribute("mensajeInfo", "Sin coincidencias en la búsqueda.");
-        else {
-            redirectAttrs.addFlashAttribute("listaResultadosBusquedaObj", convertirListaInmuebles(resultados));
-            redirectAttrs.addFlashAttribute("mostrarModalBusqueda", true);
-        }
-        return "redirect:/";
-    }
-
-    @PostMapping("/generar-recomendaciones")
-    public String generarRecomendaciones(@RequestParam String idCliente, RedirectAttributes redirectAttrs) {
-        Cliente c = plataforma.buscarClientePorId(idCliente);
-        if (c == null) {
-            redirectAttrs.addFlashAttribute("mensajeError", "Cliente no encontrado.");
-            return "redirect:/";
-        }
-        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<Inmueble> recos = plataforma
-                .generarRecomendaciones(idCliente);
-        if (recos.getSize() == 0)
-            redirectAttrs.addFlashAttribute("mensajeInfo", "La IA no tiene sugerencias suficientes.");
-        else {
-            redirectAttrs.addFlashAttribute("clienteReco", c.getNombre());
-            redirectAttrs.addFlashAttribute("listaSugerenciasObj", convertirListaInmuebles(recos));
-            redirectAttrs.addFlashAttribute("mostrarModalRecos", true);
-        }
-        return "redirect:/";
-    }
-
-    @PostMapping("/analizar-comportamiento")
-    public String analizarComportamiento(RedirectAttributes redirectAttrs) {
-        plataforma.detectarComportamientosInusuales();
-        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<String> alertas = plataforma.extraerAlertas();
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < alertas.getSize(); i++)
-            list.add(alertas.getData(i));
-        if (list.isEmpty())
-            redirectAttrs.addFlashAttribute("mensajeInfo", "Sistema operativo estable.");
-        else {
-            redirectAttrs.addFlashAttribute("mensajeError", "Anomalías detectadas en el sistema.");
-            redirectAttrs.addFlashAttribute("listaAlertas", list);
-        }
-        return "redirect:/";
-    }
-
     @PostMapping("/generar-reportes")
     public String generarReportes(RedirectAttributes redirectAttrs) {
         List<Asesor> listaOrdenada = new ArrayList<>();
-        for (int i = 0; i < plataforma.getAsesores().getSize(); i++)
+        for (int i = 0; i < plataforma.getAsesores().getSize(); i++) {
             listaOrdenada.add(plataforma.getAsesores().getData(i));
+        }
         listaOrdenada.sort((a1, a2) -> Integer.compare(a2.getNumeroCierres(), a1.getNumeroCierres()));
 
         List<String> lA = new ArrayList<>();
-        for (Asesor a : listaOrdenada)
+        for (Asesor a : listaOrdenada) {
             lA.add("🏆 " + a.getNombre() + " | Cierres: " + a.getNumeroCierres());
+        }
 
         co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<String> aZ = plataforma.obtenerResumenZonas();
         List<String> lZ = new ArrayList<>();
-        for (int i = 0; i < aZ.getSize(); i++)
+        for (int i = 0; i < aZ.getSize(); i++) {
             lZ.add(aZ.getData(i));
+        }
 
         redirectAttrs.addFlashAttribute("listaRankingAsesores", lA);
         redirectAttrs.addFlashAttribute("listaActividadZonas", lZ);
@@ -662,49 +617,48 @@ public class PropTechController {
     @PostMapping("/deshacer-accion")
     public String deshacerAccion(RedirectAttributes redirectAttrs) {
         String res = plataforma.extraerUltimoCambio();
-        if (res != null)
+        if (res != null) {
             redirectAttrs.addFlashAttribute("mensajeExito", "Deshecho: " + res);
+        }
         return "redirect:/";
     }
 
     // =====================================================================================
-    // 7. CHATBOT IA (Endpoint Asíncrono)
+    // 7. CHATBOT IA (Endpoint Asíncrono optimizado para Groq)
     // =====================================================================================
-
     @PostMapping("/api/chat")
-    @org.springframework.web.bind.annotation.ResponseBody // Esto evita que recargue la página
+    @org.springframework.web.bind.annotation.ResponseBody
     public Map<String, String> procesarChatIA(@RequestParam String mensaje) {
-        String respuesta = generarRespuestaIA(mensaje.toLowerCase());
+        // Redirecciona directamente al motor de Groq de forma transparente
+        String respuesta = generarRespuestaIA(mensaje); 
         Map<String, String> response = new HashMap<>();
         response.put("respuesta", respuesta);
         return response;
     }
 
-    private String generarRespuestaIA(String mensaje) {
-        // Lógica de IA simulada basada en palabras clave
-        if (mensaje.contains("hola") || mensaje.contains("saludo") || mensaje.contains("buenas")) {
-            return "¡Hola! Soy el asistente virtual inteligente de AURA. ¿En qué te puedo ayudar hoy?";
+    @GetMapping("/api/test-gemini")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String, String> testGemini() {
+        Map<String, String> response = new HashMap<>();
+        try {
+            String resultado = geminiService.generarRespuesta("Hola, ¿cómo estás?");
+            response.put("estado", "success");
+            response.put("respuesta", resultado);
+        } catch (Exception e) {
+            response.put("estado", "error");
+            response.put("error", e.getMessage());
+            e.printStackTrace();
         }
-        if (mensaje.contains("comprar") || mensaje.contains("venta")) {
-            return "Tenemos excelentes propiedades en venta. Te sugiero usar nuestro buscador o el botón 'Sugerencias IA' en tu panel para encontrar tu hogar ideal.";
-        }
-        if (mensaje.contains("arrendar") || mensaje.contains("arriendo")) {
-            return "Contamos con opciones de arriendo muy exclusivas. Puedes usar los filtros avanzados para encontrar la que mejor se adapte a ti.";
-        }
-        if (mensaje.contains("cita") || mensaje.contains("visita") || mensaje.contains("agendar")) {
-            return "¡Claro! Puedes agendar una visita directamente desde el catálogo de propiedades haciendo clic en 'Contactar Agente / Agendar'.";
-        }
-        if (mensaje.contains("asesor") || mensaje.contains("contacto")) {
-            return "Nuestros asesores VIP están listos para atenderte. Haz clic en 'Ofertar' en cualquier inmueble y un experto tomará tu caso.";
-        }
-        if (mensaje.contains("precio") || mensaje.contains("costo")) {
-            return "Los precios varían dependiendo de la zona y las comodidades. Usa nuestro buscador fijando un 'Precio Máximo' para ver opciones en tu presupuesto.";
-        }
-
-        // Respuesta por defecto si no reconoce la palabra
-        return "Entiendo. Para darte una mejor respuesta sobre bienes raíces, te invito a explorar nuestro catálogo o contactar a uno de nuestros asesores. ¿Hay algo más específico en lo que te pueda orientar?";
+        return response;
     }
 
+    private String generarRespuestaIA(String mensaje) {
+        return geminiService.generarRespuesta(mensaje);
+    }
+
+    // =====================================================================================
+    // COMPONENTES AUXILIARES Y MAPEOS DEL ÁRBOL BINARIO (BST)
+    // =====================================================================================
     private String generateGraphData(Node<Inmueble> root) {
         List<Map<String, Object>> nodeList = new ArrayList<>();
         populateJsonModel(root, nodeList, null, null);
@@ -715,23 +669,27 @@ public class PropTechController {
         }
     }
 
-    private void populateJsonModel(Node<Inmueble> node, List<Map<String, Object>> list, String parentKey,
-            String direction) {
-        if (node == null)
-            return;
+    private void populateJsonModel(Node<Inmueble> node, List<Map<String, Object>> list, String parentKey, String direction) {
+        if (node == null) return;
+        
         Map<String, Object> nodeMap = new HashMap<>();
         String currentKey = node.getData().getCodigo();
         nodeMap.put("key", currentKey);
         nodeMap.put("text", currentKey + "\n$" + String.format("%,.0f", node.getData().getPrecio()));
+        
         if (parentKey != null) {
             nodeMap.put("parent", parentKey);
             nodeMap.put("dir", direction);
         }
         list.add(nodeMap);
+        
         populateJsonModel(node.getLeft(), list, currentKey, "L");
         populateJsonModel(node.getRight(), list, currentKey, "R");
     }
 
+    // =====================================================================================
+    // BANCO DE DATOS DE PRUEBA (MOCK DATA INITIALIZATION)
+    // =====================================================================================
     private void cargarDatosPrueba() {
         Asesor admin = new Asesor("ADMIN-01", "Admin Sup", "000", "General");
         Asesor asesor1 = new Asesor("A-101", "Juli", "3112345678", "Norte");
@@ -740,39 +698,24 @@ public class PropTechController {
         plataforma.registrarAsesor(asesor1);
         plataforma.registrarAsesor(asesor2);
 
-        Cliente cliente1 = new Cliente("C-001", "Andrés", "andres@aura.com", "3001112222", "Comprador", 300000000.0,
-                "Apartamento", 2);
-        Cliente cliente2 = new Cliente("C-002", "Nathaly", "nat@aura.com", "3003334444", "Inversionista", 600000000.0,
-                "LocalComercial", 0);
+        Cliente cliente1 = new Cliente("C-001", "Andrés", "andres@aura.com", "3001112222", "Comprador", 300000000.0, "Apartamento", 2);
+        Cliente cliente2 = new Cliente("C-002", "Nathaly", "nat@aura.com", "3003334444", "Inversionista", 600000000.0, "LocalComercial", 0);
         plataforma.registrarCliente(cliente1);
         plataforma.registrarCliente(cliente2);
 
-        Apartamento apt1 = new Apartamento("APT-001", "Calle 10N #14-20", "Armenia", "Norte", "Venta", 250000000.0,
-                65.0, 3, 2, "Nuevo", true, asesor1, true, 200000.0);
-        Apartamento apt2 = new Apartamento("APT-002", "Av. Centenario", "Armenia", "Norte", "Arriendo", 1500000.0, 50.0,
-                2, 1, "Usado", true, asesor1, false, 150000.0);
-        LocalComercial loc1 = new LocalComercial("LOC-001", "Carrera 14 #23-00", "Armenia", "Centro", "Venta",
-                500000000.0, 120.0, 1, 2, "Remodelado", true, asesor2, true, "Comercial Mixto");
-        Casa casa1 = new Casa("CAS-001", "Cra 19 #12-45", "Armenia", "La Castellana", "Venta", 380000000.0, 140.0, 4, 3,
-                "Nuevo", true, asesor1, true);
-        Casa casa2 = new Casa("CAS-002", "Barrio Granada", "Armenia", "Sur", "Arriendo", 2200000.0, 110.0, 3, 2,
-                "Usado", true, asesor2, false);
-        Casa casa3 = new Casa("CAS-003", "Conjunto Portal del Edén", "Armenia", "Occidente", "Venta", 420000000.0,
-                160.0, 5, 4, "Remodelado", true, asesor1, true);
-        Casa casa4 = new Casa("CAS-004", "Cra 13 #8-55", "Calarcá", "Centro", "Arriendo", 1800000.0, 95.0, 3, 2,
-                "Usado", true, asesor1, false);
-        Bodega bod1 = new Bodega("BOD-001", "Zona Industrial El Caimo", "Armenia", "Industrial", "Venta", 650000000.0,
-                300.0, 2, 2, "Usado", true, asesor2, 500.0);
-        Bodega bod2 = new Bodega("BOD-002", "Km 3 Vía La Tebaida", "Armenia", "Zona Industrial", "Arriendo", 4800000.0,
-                450.0, 1, 1, "Usado", true, asesor2, 750.0);
-        Oficina ofi1 = new Oficina("OFI-001", "Edificio Mocawa Plaza", "Armenia", "Centro", "Arriendo", 3200000.0, 85.0,
-                4, 2, "Nuevo", true, asesor1, 8);
-        Oficina ofi2 = new Oficina("OFI-002", "Edificio Banco de Occidente", "Armenia", "Centro", "Venta", 290000000.0,
-                70.0, 3, 1, "Usado", true, asesor1, 6);
-        Lote lot1 = new Lote("LOT-001", "Vía Armenia - Circasia", "Armenia", "Periferia", "Venta", 180000000.0, 600.0,
-                0, 0, "Nuevo", true, asesor2, true);
-        Lote lot2 = new Lote("LOT-002", "Vereda El Caimo", "Armenia", "Rural", "Venta", 95000000.0, 1200.0, 0, 0,
-                "Nuevo", true, asesor2, false);
+        Apartamento apt1 = new Apartamento("APT-001", "Calle 10N #14-20", "Armenia", "Norte", "Venta", 250000000.0, 65.0, 3, 2, "Nuevo", true, asesor1, true, 200000.0);
+        Apartamento apt2 = new Apartamento("APT-002", "Av. Centenario", "Armenia", "Norte", "Arriendo", 1500000.0, 50.0, 2, 1, "Usado", true, asesor1, false, 150000.0);
+        LocalComercial loc1 = new LocalComercial("LOC-001", "Carrera 14 #23-00", "Armenia", "Centro", "Venta", 500000000.0, 120.0, 1, 2, "Remodelado", true, asesor2, true, "Comercial Mixto");
+        Casa casa1 = new Casa("CAS-001", "Cra 19 #12-45", "Armenia", "La Castellana", "Venta", 380000000.0, 140.0, 4, 3, "Nuevo", true, asesor1, true);
+        Casa casa2 = new Casa("CAS-002", "Barrio Granada", "Armenia", "Sur", "Arriendo", 2200000.0, 110.0, 3, 2, "Usado", true, asesor2, false);
+        Casa casa3 = new Casa("CAS-003", "Conjunto Portal del Edén", "Armenia", "Occidente", "Venta", 420000000.0, 160.0, 5, 4, "Remodelado", true, asesor1, true);
+        Casa casa4 = new Casa("CAS-004", "Cra 13 #8-55", "Calarcá", "Centro", "Arriendo", 1800000.0, 95.0, 3, 2, "Usado", true, asesor1, false);
+        Bodega bod1 = new Bodega("BOD-001", "Zona Industrial El Caimo", "Armenia", "Industrial", "Venta", 650000000.0, 300.0, 2, 2, "Usado", true, asesor2, 500.0);
+        Bodega bod2 = new Bodega("BOD-002", "Km 3 Vía La Tebaida", "Armenia", "Zona Industrial", "Arriendo", 4800000.0, 450.0, 1, 1, "Usado", true, asesor2, 750.0);
+        Oficina ofi1 = new Oficina("OFI-001", "Edificio Mocawa Plaza", "Armenia", "Centro", "Arriendo", 3200000.0, 85.0, 4, 2, "Nuevo", true, asesor1, 8);
+        Oficina ofi2 = new Oficina("OFI-002", "Edificio Banco de Occidente", "Armenia", "Centro", "Venta", 290000000.0, 70.0, 3, 1, "Usado", true, asesor1, 6);
+        Lote lot1 = new Lote("LOT-001", "Vía Armenia - Circasia", "Armenia", "Periferia", "Venta", 180000000.0, 600.0, 0, 0, "Nuevo", true, asesor2, true);
+        Lote lot2 = new Lote("LOT-002", "Vereda El Caimo", "Armenia", "Rural", "Venta", 95000000.0, 1200.0, 0, 0, "Nuevo", true, asesor2, false);
 
         plataforma.registrarInmueble(apt1);
         plataforma.registrarInmueble(apt2);
