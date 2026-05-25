@@ -2,6 +2,10 @@ package co.edu.uniquindio.proptech;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "visitas")
 public class Visita implements Comparable<Visita>{
     public static final String ESTADO_PENDIENTE = "Pendiente";
     public static final String ESTADO_CONFIRMADA = "Confirmada";
@@ -9,18 +13,30 @@ public class Visita implements Comparable<Visita>{
     public static final String ESTADO_CANCELADA = "Cancelada";
     public static final String ESTADO_REPROGRAMADA = "Reprogramada";
 
-    private Cliente cliente;
-    private Inmueble inmueble;
-    private LocalDate fecha;
-    private String hora;
-    private Asesor asesorAsignado;
+    @Id
     private String idVisita;
     private String estadoVisita;
+    private LocalDate fecha;
+    private String hora;
     private String observaciones;
-    private int nivelUrgencia; 
+    private int nivelUrgencia;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "inmueble_codigo")
+    private Inmueble inmueble;
+
+    @ManyToOne
+    @JoinColumn(name = "asesor_id")
+    private Asesor asesorAsignado;
+
+    public Visita() {}
 
     public Visita(String idVisita, Cliente cliente, Inmueble inmueble, LocalDate fecha, String hora, Asesor asesorAsignado, int nivelUrgencia){
-        this.idVisita = idVisita; 
+        this.idVisita = idVisita;
         this.cliente = cliente;
         this.inmueble = inmueble;
         this.fecha = fecha;
@@ -52,7 +68,6 @@ public class Visita implements Comparable<Visita>{
         return Integer.compare(otraVisita.getNivelUrgencia(), this.getNivelUrgencia());
     }
 
-    // Getters y Setters
     public Cliente getCliente() { return cliente; }
     public Inmueble getInmueble() { return inmueble; }
     public LocalDate getFecha() { return fecha; }

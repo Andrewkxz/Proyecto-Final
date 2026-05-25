@@ -22,22 +22,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class PropTechController {
 
-    private static Inmobiliaria plataforma = new Inmobiliaria();
-    private static boolean datosInicializados = false;
+    @Autowired
+    private Inmobiliaria plataforma;
 
     @Autowired
     private GeminiService geminiService;
 
-    public PropTechController() {
-        if (!datosInicializados) {
-            cargarDatosPrueba();
-            datosInicializados = true;
-        }
-    }
-
-    // =====================================================================================
-    // ESCUDO DE SEGURIDAD Y MAPEO
-    // =====================================================================================
     private Map<String, String> inmuebleToMap(Inmueble inm) {
         Map<String, String> map = new HashMap<>();
         map.put("codigo", inm.getCodigo());
@@ -50,7 +40,6 @@ public class PropTechController {
         map.put("area", getSafeFieldValue(inm, "getArea", "0"));
 
         String[] fotos;
-
         if (inm instanceof Casa) {
             fotos = new String[] {
                     "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80",
@@ -86,7 +75,6 @@ public class PropTechController {
                     "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80"
             };
         }
-
         map.put("imagen", fotos[Math.abs(inm.getCodigo().hashCode()) % fotos.length]);
         return map;
     }
@@ -94,9 +82,7 @@ public class PropTechController {
     private String getSafeFieldValue(Object obj, String methodName, String def) {
         try {
             return String.valueOf(obj.getClass().getMethod(methodName).invoke(obj));
-        } catch (Exception e) {
-            return def;
-        }
+        } catch (Exception e) { return def; }
     }
 
     private List<Map<String, String>> convertirListaInmuebles(
@@ -115,13 +101,8 @@ public class PropTechController {
         return listaSegura;
     }
 
-    // =====================================================================================
-    // LOGIN Y DASHBOARD
-    // =====================================================================================
     @GetMapping("/login")
-    public String mostrarLogin() {
-        return "login";
-    }
+    public String mostrarLogin() { return "login"; }
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String username, @RequestParam String password,
@@ -131,7 +112,6 @@ public class PropTechController {
             session.setAttribute("usuarioLogueado", u);
             return "redirect:/";
         }
-
         redirectAttrs.addFlashAttribute("error", "Usuario o contraseña incorrectos.");
         return "redirect:/login";
     }
@@ -145,8 +125,7 @@ public class PropTechController {
     @GetMapping("/")
     public String dashboard(HttpSession session, Model model) {
         Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
-        if (usuarioLogueado == null)
-            return "redirect:/login";
+        if (usuarioLogueado == null) return "redirect:/login";
 
         model.addAttribute("usuarioActual", usuarioLogueado);
         model.addAttribute("rolActual", usuarioLogueado.getRol());
@@ -159,8 +138,7 @@ public class PropTechController {
         model.addAttribute("siguienteTarea",
                 plataforma.verSiguienteTarea() != null ? plataforma.verSiguienteTarea() : "No hay tareas.");
         model.addAttribute("siguienteSolicitud",
-                plataforma.verSiguienteSolicitud() != null ? plataforma.verSiguienteSolicitud()
-                        : "No hay solicitudes.");
+                plataforma.verSiguienteSolicitud() != null ? plataforma.verSiguienteSolicitud() : "No hay solicitudes.");
 
         List<Asesor> listaAsesores = new ArrayList<>();
         for (int i = 0; i < plataforma.getAsesores().getSize(); i++)
@@ -172,24 +150,13 @@ public class PropTechController {
 
         if (usuarioLogueado.getRol().equals("ADMIN") || usuarioLogueado.getRol().equals("ASESOR")) {
             List<String> visitasPendientes = new ArrayList<>();
-            try {
-                Field f = Inmobiliaria.class.getDeclaredField("historialVisitasGlobales");
-                f.setAccessible(true);
-                Object historialObj = f.get(plataforma);
-                int size = (int) historialObj.getClass().getMethod("getSize").invoke(historialObj);
-                for (int i = 0; i < size; i++) {
-                    Object visita = historialObj.getClass().getMethod("getData", int.class).invoke(historialObj, i);
-                    String estado = (String) visita.getClass().getMethod("getEstadoVisita").invoke(visita);
-                    if ("Pendiente".equalsIgnoreCase(estado) || "Reprogramada".equalsIgnoreCase(estado)) {
-                        String id = (String) visita.getClass().getMethod("getIdVisita").invoke(visita);
-                        Object cliente = visita.getClass().getMethod("getCliente").invoke(visita);
-                        String cNombre = (String) cliente.getClass().getMethod("getNombre").invoke(cliente);
-                        Object inmueble = visita.getClass().getMethod("getInmueble").invoke(visita);
-                        String iCod = (String) inmueble.getClass().getMethod("getCodigo").invoke(inmueble);
-                        visitasPendientes.add(id + " | " + cNombre + " | Inm: " + iCod);
-                    }
+            for (int i = 0; i < plataforma.getHistorialVisitasGlobales().getSize(); i++) {
+                Visita visita = plataforma.getHistorialVisitasGlobales().getData(i);
+                String estado = visita.getEstadoVisita();
+                if ("Pendiente".equalsIgnoreCase(estado) || "Reprogramada".equalsIgnoreCase(estado)) {
+                    visitasPendientes.add(visita.getIdVisita() + " | " + visita.getCliente().getNombre()
+                            + " | Inm: " + visita.getInmueble().getCodigo());
                 }
-            } catch (Exception e) {
             }
             model.addAttribute("listaVisitasPendientes", visitasPendientes);
         }
@@ -204,124 +171,84 @@ public class PropTechController {
         return "dashboard";
     }
 
-    // =====================================================================================
-    // 2. OPERACIONES DE NEGOCIO Y VISITAS
-    // =====================================================================================
-
     @PostMapping("/registrar-operacion")
-    public String registrarOperacion(
-            @RequestParam String idOperacion, @RequestParam String tipoOperacion, @RequestParam String idCliente,
-            @RequestParam String codigoInmueble, @RequestParam double valorAcordado,
-            @RequestParam double porcentajeComision,
-            @RequestParam String idAsesor, RedirectAttributes redirectAttrs) {
-
+    public String registrarOperacion(@RequestParam String idOperacion, @RequestParam String tipoOperacion,
+            @RequestParam String idCliente, @RequestParam String codigoInmueble, @RequestParam double valorAcordado,
+            @RequestParam double porcentajeComision, @RequestParam String idAsesor, RedirectAttributes redirectAttrs) {
         Cliente c = plataforma.buscarClientePorId(idCliente);
         Inmueble i = plataforma.buscarInmueblePorCodigo(codigoInmueble);
         Asesor a = plataforma.buscarAsesorPorId(idAsesor);
-
         if (i != null && !i.isDisponibilidad()) {
-            redirectAttrs.addFlashAttribute("mensajeError",
-                    "El inmueble " + codigoInmueble + " ya fue negociado o no está disponible.");
+            redirectAttrs.addFlashAttribute("mensajeError", "El inmueble " + codigoInmueble + " ya fue negociado o no está disponible.");
             return "redirect:/";
         }
-
         if (c != null && i != null && a != null) {
-            Operacion op = new Operacion(idOperacion, i, c, a, LocalDate.now(), tipoOperacion, valorAcordado,
-                    porcentajeComision);
+            Operacion op = new Operacion(idOperacion, i, c, a, LocalDate.now(), tipoOperacion, valorAcordado, porcentajeComision);
             plataforma.registrarOperacion(op);
             c.registrarInmuebleNegociado(i);
-            redirectAttrs.addFlashAttribute("mensajeExito",
-                    "Operación (" + tipoOperacion + ") sumada al asesor: " + a.getNombre());
+            redirectAttrs.addFlashAttribute("mensajeExito", "Operación (" + tipoOperacion + ") sumada al asesor: " + a.getNombre());
         } else {
             redirectAttrs.addFlashAttribute("mensajeError", "Error: Verifique IDs.");
         }
         return "redirect:/";
     }
 
-    // Modal Cliente: Agendar Visita
     @PostMapping("/agendar-visita-cliente")
-    public String agendarVisitaCliente(
-            @RequestParam String idCliente, @RequestParam String codigoInmueble,
+    public String agendarVisitaCliente(@RequestParam String idCliente, @RequestParam String codigoInmueble,
             @RequestParam String fecha, @RequestParam String hora, RedirectAttributes redirectAttrs) {
-
         Cliente c = plataforma.buscarClientePorId(idCliente);
         Inmueble i = plataforma.buscarInmueblePorCodigo(codigoInmueble);
-
         if (c != null && i != null) {
             boolean intencionDuplicada = false;
             for (int idx = 0; idx < c.getIntenciones().getSize(); idx++) {
                 if (c.getIntenciones().getData(idx).getCodigo().equals(codigoInmueble)) {
-                    intencionDuplicada = true;
-                    break;
+                    intencionDuplicada = true; break;
                 }
             }
             if (intencionDuplicada) {
-                // Notifica al HTML que debe lanzar la alerta de confirmación
                 redirectAttrs.addFlashAttribute("visitaDuplicada", codigoInmueble);
                 return "redirect:/";
             }
-
             plataforma.registrarIntencionDeNegocio(idCliente, codigoInmueble);
-            Asesor a = i.getAsesorResponsable() != null ? i.getAsesorResponsable()
-                    : plataforma.getAsesores().getData(0);
+            Asesor a = i.getAsesorResponsable() != null ? i.getAsesorResponsable() : plataforma.getAsesores().getData(0);
             String idVisitaGen = "V-" + (int) (Math.random() * 10000);
             plataforma.agendarVisita(new Visita(idVisitaGen, c, i, LocalDate.parse(fecha), hora, a, 1));
-
-            redirectAttrs.addFlashAttribute("mensajeExito",
-                    "¡Excelente! Solicitud registrada y visita agendada con éxito.");
+            redirectAttrs.addFlashAttribute("mensajeExito", "¡Excelente! Solicitud registrada y visita agendada con éxito.");
         } else
             redirectAttrs.addFlashAttribute("mensajeError", "Error al procesar la solicitud.");
         return "redirect:/";
     }
 
-    // Modal Cliente: Reprogramar Visita
     @PostMapping("/reprogramar-visita-cliente")
     public String reprogramarVisitaCliente(@RequestParam String idCliente, @RequestParam String codigoInmueble,
             @RequestParam String nuevaFecha, @RequestParam String nuevaHora, RedirectAttributes redirectAttrs) {
-        try {
-            Field f = Inmobiliaria.class.getDeclaredField("historialVisitasGlobales");
-            f.setAccessible(true);
-            Object historialObj = f.get(plataforma);
-            int size = (int) historialObj.getClass().getMethod("getSize").invoke(historialObj);
-            boolean found = false;
-            for (int i = 0; i < size; i++) {
-                Object visita = historialObj.getClass().getMethod("getData", int.class).invoke(historialObj, i);
-                String estado = (String) visita.getClass().getMethod("getEstadoVisita").invoke(visita);
-                if ("Pendiente".equalsIgnoreCase(estado) || "Reprogramada".equalsIgnoreCase(estado)) {
-                    Object c = visita.getClass().getMethod("getCliente").invoke(visita);
-                    String cId = (String) c.getClass().getMethod("getId").invoke(c);
-                    Object inm = visita.getClass().getMethod("getInmueble").invoke(visita);
-                    String iCod = (String) inm.getClass().getMethod("getCodigo").invoke(inm);
-                    if (cId.equals(idCliente) && iCod.equals(codigoInmueble)) {
-                        visita.getClass().getMethod("setFecha", LocalDate.class).invoke(visita,
-                                LocalDate.parse(nuevaFecha));
-                        visita.getClass().getMethod("setHora", String.class).invoke(visita, nuevaHora);
-                        visita.getClass().getMethod("setEstadoVisita", String.class).invoke(visita, "Reprogramada");
-                        found = true;
-                        break;
-                    }
+        boolean found = false;
+        for (int i = 0; i < plataforma.getHistorialVisitasGlobales().getSize(); i++) {
+            Visita visita = plataforma.getHistorialVisitasGlobales().getData(i);
+            String estado = visita.getEstadoVisita();
+            if ("Pendiente".equalsIgnoreCase(estado) || "Reprogramada".equalsIgnoreCase(estado)) {
+                if (visita.getCliente().getId().equals(idCliente) && visita.getInmueble().getCodigo().equals(codigoInmueble)) {
+                    visita.setFecha(LocalDate.parse(nuevaFecha));
+                    visita.setHora(nuevaHora);
+                    visita.setEstadoVisita("Reprogramada");
+                    found = true; break;
                 }
             }
-            if (found)
-                redirectAttrs.addFlashAttribute("mensajeExito", "Visita reprogramada con éxito.");
-            else
-                redirectAttrs.addFlashAttribute("mensajeError", "No se encontró visita activa para reprogramar.");
-        } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("mensajeError", "Error interno al reprogramar.");
         }
+        if (found)
+            redirectAttrs.addFlashAttribute("mensajeExito", "Visita reprogramada con éxito.");
+        else
+            redirectAttrs.addFlashAttribute("mensajeError", "No se encontró visita activa para reprogramar.");
         return "redirect:/";
     }
 
-    // Modal Asesor: Agendar Visita Manual
     @PostMapping("/agendar-visita")
-    public String agendarVisita(
-            @RequestParam String idVisita, @RequestParam String idCliente, @RequestParam String codigoInmueble,
-            @RequestParam String fecha, @RequestParam String hora, @RequestParam int nivelUrgencia,
-            HttpSession session, RedirectAttributes redirectAttrs) {
+    public String agendarVisita(@RequestParam String idVisita, @RequestParam String idCliente,
+            @RequestParam String codigoInmueble, @RequestParam String fecha, @RequestParam String hora,
+            @RequestParam int nivelUrgencia, HttpSession session, RedirectAttributes redirectAttrs) {
         Cliente c = plataforma.buscarClientePorId(idCliente);
         Inmueble i = plataforma.buscarInmueblePorCodigo(codigoInmueble);
         Asesor a = plataforma.buscarAsesorPorId(((Usuario) session.getAttribute("usuarioLogueado")).getIdAsociado());
-
         if (c != null && i != null && a != null) {
             plataforma.agendarVisita(new Visita(idVisita, c, i, LocalDate.parse(fecha), hora, a, nivelUrgencia));
             redirectAttrs.addFlashAttribute("mensajeExito", "Visita " + idVisita + " encolada en Priority Queue.");
@@ -373,9 +300,6 @@ public class PropTechController {
         return "redirect:/";
     }
 
-    // =====================================================================================
-    // 3. INTERACCIONES Y CRUD BÁSICO
-    // =====================================================================================
     @PostMapping("/marcar-favorito")
     public String marcarFavorito(@RequestParam String idCliente, @RequestParam String codigoInmueble,
             RedirectAttributes redirectAttrs) {
@@ -439,8 +363,7 @@ public class PropTechController {
         if (c != null) {
             for (int i = 0; i < c.getIntenciones().getSize(); i++) {
                 if (c.getIntenciones().getData(i).getCodigo().equals(codigoInmueble)) {
-                    redirectAttrs.addFlashAttribute("mensajeInfo",
-                            "Atención: Ya has registrado una solicitud para este inmueble.");
+                    redirectAttrs.addFlashAttribute("mensajeInfo", "Atención: Ya has registrado una solicitud para este inmueble.");
                     return "redirect:/";
                 }
             }
@@ -453,11 +376,11 @@ public class PropTechController {
     }
 
     @PostMapping("/registrar-inmueble")
-    public String registrarInmueble(
-            @RequestParam String codigo, @RequestParam String direccion, @RequestParam String ciudad,
-            @RequestParam String barrioZona, @RequestParam String finalidad, @RequestParam double precio,
-            @RequestParam double area, @RequestParam int habitaciones, @RequestParam int banos,
-            @RequestParam String estado, @RequestParam String idAsesor, RedirectAttributes redirectAttrs) {
+    public String registrarInmueble(@RequestParam String codigo, @RequestParam String direccion,
+            @RequestParam String ciudad, @RequestParam String barrioZona, @RequestParam String finalidad,
+            @RequestParam double precio, @RequestParam double area, @RequestParam int habitaciones,
+            @RequestParam int banos, @RequestParam String estado, @RequestParam String idAsesor,
+            RedirectAttributes redirectAttrs) {
         Asesor a = plataforma.buscarAsesorPorId(idAsesor);
         if (a == null) {
             redirectAttrs.addFlashAttribute("mensajeError", "Asesor no existe.");
@@ -472,62 +395,31 @@ public class PropTechController {
     }
 
     @GetMapping("/registro")
-    public String mostrarRegistro() {
-        return "registro";
-    }
+    public String mostrarRegistro() { return "registro"; }
 
     @PostMapping("/registro")
-    public String registrarNuevoCliente(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String identificacion,
-            @RequestParam String nombre,
-            @RequestParam String correo,
-            @RequestParam String telefono,
-            @RequestParam String tipoCliente,
-            @RequestParam double presupuesto,
-            @RequestParam String tipoInmuebleDeseado,
-            @RequestParam int minHabitaciones,
+    public String registrarNuevoCliente(@RequestParam String username, @RequestParam String password,
+            @RequestParam String identificacion, @RequestParam String nombre, @RequestParam String correo,
+            @RequestParam String telefono, @RequestParam String tipoCliente, @RequestParam double presupuesto,
+            @RequestParam String tipoInmuebleDeseado, @RequestParam int minHabitaciones,
             RedirectAttributes redirectAttrs) {
-
-        // Verificar si ya existe usuario
         if (plataforma.buscarUsuarioPorUsername(username) != null) {
             redirectAttrs.addFlashAttribute("error", "El nombre de usuario ya existe.");
             return "redirect:/registro";
         }
-
-        // Crear cliente
-        Cliente nuevoCliente = new Cliente(
-                identificacion,
-                nombre,
-                correo,
-                telefono,
-                tipoCliente,
-                presupuesto,
-                tipoInmuebleDeseado,
-                minHabitaciones);
-
+        Cliente nuevoCliente = new Cliente(identificacion, nombre, correo, telefono, tipoCliente, presupuesto,
+                tipoInmuebleDeseado, minHabitaciones);
         boolean clienteRegistrado = plataforma.registrarCliente(nuevoCliente);
-
         if (!clienteRegistrado) {
             redirectAttrs.addFlashAttribute("error", "Ya existe un cliente con esa identificación.");
             return "redirect:/registro";
         }
-
-        // Crear usuario para login
-        Usuario nuevoUsuario = new Usuario(
-                username,
-                password,
-                "CLIENTE",
-                identificacion);
-
+        Usuario nuevoUsuario = new Usuario(username, password, "CLIENTE", identificacion);
         boolean usuarioGuardado = plataforma.guardarUsuarioEnCSV(nuevoUsuario);
-
         if (!usuarioGuardado) {
             redirectAttrs.addFlashAttribute("mensajeError", "No se pudo guardar el usuario.");
             return "redirect:/registro";
         }
-
         redirectAttrs.addFlashAttribute("mensajeExito", "Registro exitoso. Ya puedes iniciar sesión.");
         return "redirect:/login";
     }
@@ -559,27 +451,19 @@ public class PropTechController {
         return "redirect:/";
     }
 
-// =====================================================================================
-    // 4. BÚSQUEDAS, IA Y REPORTES (CONTINUACIÓN)
-    // =====================================================================================
     @PostMapping("/generar-reportes")
     public String generarReportes(RedirectAttributes redirectAttrs) {
         List<Asesor> listaOrdenada = new ArrayList<>();
-        for (int i = 0; i < plataforma.getAsesores().getSize(); i++) {
+        for (int i = 0; i < plataforma.getAsesores().getSize(); i++)
             listaOrdenada.add(plataforma.getAsesores().getData(i));
-        }
         listaOrdenada.sort((a1, a2) -> Integer.compare(a2.getNumeroCierres(), a1.getNumeroCierres()));
-
         List<String> lA = new ArrayList<>();
-        for (Asesor a : listaOrdenada) {
+        for (Asesor a : listaOrdenada)
             lA.add("🏆 " + a.getNombre() + " | Cierres: " + a.getNumeroCierres());
-        }
 
         co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<String> aZ = plataforma.obtenerResumenZonas();
         List<String> lZ = new ArrayList<>();
-        for (int i = 0; i < aZ.getSize(); i++) {
-            lZ.add(aZ.getData(i));
-        }
+        for (int i = 0; i < aZ.getSize(); i++) lZ.add(aZ.getData(i));
 
         redirectAttrs.addFlashAttribute("listaRankingAsesores", lA);
         redirectAttrs.addFlashAttribute("listaActividadZonas", lZ);
@@ -587,9 +471,6 @@ public class PropTechController {
         return "redirect:/";
     }
 
-    // =====================================================================================
-    // 5. UTILIDADES (TAREAS Y DESHACER)
-    // =====================================================================================
     @PostMapping("/agregar-tarea")
     public String agregarTarea(@RequestParam String tarea, RedirectAttributes redirectAttrs) {
         plataforma.registrarTareaAdministrativa(tarea);
@@ -617,20 +498,14 @@ public class PropTechController {
     @PostMapping("/deshacer-accion")
     public String deshacerAccion(RedirectAttributes redirectAttrs) {
         String res = plataforma.extraerUltimoCambio();
-        if (res != null) {
-            redirectAttrs.addFlashAttribute("mensajeExito", "Deshecho: " + res);
-        }
+        if (res != null) redirectAttrs.addFlashAttribute("mensajeExito", "Deshecho: " + res);
         return "redirect:/";
     }
 
-    // =====================================================================================
-    // 7. CHATBOT IA (Endpoint Asíncrono optimizado para Groq)
-    // =====================================================================================
     @PostMapping("/api/chat")
     @org.springframework.web.bind.annotation.ResponseBody
     public Map<String, String> procesarChatIA(@RequestParam String mensaje) {
-        // Redirecciona directamente al motor de Groq de forma transparente
-        String respuesta = generarRespuestaIA(mensaje); 
+        String respuesta = geminiService.generarRespuesta(mensaje);
         Map<String, String> response = new HashMap<>();
         response.put("respuesta", respuesta);
         return response;
@@ -647,88 +522,29 @@ public class PropTechController {
         } catch (Exception e) {
             response.put("estado", "error");
             response.put("error", e.getMessage());
-            e.printStackTrace();
         }
         return response;
     }
 
-    private String generarRespuestaIA(String mensaje) {
-        return geminiService.generarRespuesta(mensaje);
-    }
-
-    // =====================================================================================
-    // COMPONENTES AUXILIARES Y MAPEOS DEL ÁRBOL BINARIO (BST)
-    // =====================================================================================
     private String generateGraphData(Node<Inmueble> root) {
         List<Map<String, Object>> nodeList = new ArrayList<>();
         populateJsonModel(root, nodeList, null, null);
-        try {
-            return new ObjectMapper().writeValueAsString(nodeList);
-        } catch (JsonProcessingException e) {
-            return "[]";
-        }
+        try { return new ObjectMapper().writeValueAsString(nodeList); }
+        catch (JsonProcessingException e) { return "[]"; }
     }
 
     private void populateJsonModel(Node<Inmueble> node, List<Map<String, Object>> list, String parentKey, String direction) {
         if (node == null) return;
-        
         Map<String, Object> nodeMap = new HashMap<>();
         String currentKey = node.getData().getCodigo();
         nodeMap.put("key", currentKey);
         nodeMap.put("text", currentKey + "\n$" + String.format("%,.0f", node.getData().getPrecio()));
-        
         if (parentKey != null) {
             nodeMap.put("parent", parentKey);
             nodeMap.put("dir", direction);
         }
         list.add(nodeMap);
-        
         populateJsonModel(node.getLeft(), list, currentKey, "L");
         populateJsonModel(node.getRight(), list, currentKey, "R");
-    }
-
-    // =====================================================================================
-    // BANCO DE DATOS DE PRUEBA (MOCK DATA INITIALIZATION)
-    // =====================================================================================
-    private void cargarDatosPrueba() {
-        Asesor admin = new Asesor("ADMIN-01", "Admin Sup", "000", "General");
-        Asesor asesor1 = new Asesor("A-101", "Juli", "3112345678", "Norte");
-        Asesor asesor2 = new Asesor("A-102", "Juan", "3128765432", "Centro");
-        plataforma.registrarAsesor(admin);
-        plataforma.registrarAsesor(asesor1);
-        plataforma.registrarAsesor(asesor2);
-
-        Cliente cliente1 = new Cliente("C-001", "Andrés", "andres@aura.com", "3001112222", "Comprador", 300000000.0, "Apartamento", 2);
-        Cliente cliente2 = new Cliente("C-002", "Nathaly", "nat@aura.com", "3003334444", "Inversionista", 600000000.0, "LocalComercial", 0);
-        plataforma.registrarCliente(cliente1);
-        plataforma.registrarCliente(cliente2);
-
-        Apartamento apt1 = new Apartamento("APT-001", "Calle 10N #14-20", "Armenia", "Norte", "Venta", 250000000.0, 65.0, 3, 2, "Nuevo", true, asesor1, true, 200000.0);
-        Apartamento apt2 = new Apartamento("APT-002", "Av. Centenario", "Armenia", "Norte", "Arriendo", 1500000.0, 50.0, 2, 1, "Usado", true, asesor1, false, 150000.0);
-        LocalComercial loc1 = new LocalComercial("LOC-001", "Carrera 14 #23-00", "Armenia", "Centro", "Venta", 500000000.0, 120.0, 1, 2, "Remodelado", true, asesor2, true, "Comercial Mixto");
-        Casa casa1 = new Casa("CAS-001", "Cra 19 #12-45", "Armenia", "La Castellana", "Venta", 380000000.0, 140.0, 4, 3, "Nuevo", true, asesor1, true);
-        Casa casa2 = new Casa("CAS-002", "Barrio Granada", "Armenia", "Sur", "Arriendo", 2200000.0, 110.0, 3, 2, "Usado", true, asesor2, false);
-        Casa casa3 = new Casa("CAS-003", "Conjunto Portal del Edén", "Armenia", "Occidente", "Venta", 420000000.0, 160.0, 5, 4, "Remodelado", true, asesor1, true);
-        Casa casa4 = new Casa("CAS-004", "Cra 13 #8-55", "Calarcá", "Centro", "Arriendo", 1800000.0, 95.0, 3, 2, "Usado", true, asesor1, false);
-        Bodega bod1 = new Bodega("BOD-001", "Zona Industrial El Caimo", "Armenia", "Industrial", "Venta", 650000000.0, 300.0, 2, 2, "Usado", true, asesor2, 500.0);
-        Bodega bod2 = new Bodega("BOD-002", "Km 3 Vía La Tebaida", "Armenia", "Zona Industrial", "Arriendo", 4800000.0, 450.0, 1, 1, "Usado", true, asesor2, 750.0);
-        Oficina ofi1 = new Oficina("OFI-001", "Edificio Mocawa Plaza", "Armenia", "Centro", "Arriendo", 3200000.0, 85.0, 4, 2, "Nuevo", true, asesor1, 8);
-        Oficina ofi2 = new Oficina("OFI-002", "Edificio Banco de Occidente", "Armenia", "Centro", "Venta", 290000000.0, 70.0, 3, 1, "Usado", true, asesor1, 6);
-        Lote lot1 = new Lote("LOT-001", "Vía Armenia - Circasia", "Armenia", "Periferia", "Venta", 180000000.0, 600.0, 0, 0, "Nuevo", true, asesor2, true);
-        Lote lot2 = new Lote("LOT-002", "Vereda El Caimo", "Armenia", "Rural", "Venta", 95000000.0, 1200.0, 0, 0, "Nuevo", true, asesor2, false);
-
-        plataforma.registrarInmueble(apt1);
-        plataforma.registrarInmueble(apt2);
-        plataforma.registrarInmueble(loc1);
-        plataforma.registrarInmueble(casa1);
-        plataforma.registrarInmueble(casa2);
-        plataforma.registrarInmueble(bod1);
-        plataforma.registrarInmueble(ofi1);
-        plataforma.registrarInmueble(lot1);
-        plataforma.registrarInmueble(casa3);
-        plataforma.registrarInmueble(bod2);
-        plataforma.registrarInmueble(ofi2);
-        plataforma.registrarInmueble(lot2);
-        plataforma.registrarInmueble(casa4);
     }
 }

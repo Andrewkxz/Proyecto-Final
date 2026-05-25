@@ -1,8 +1,15 @@
 package co.edu.uniquindio.proptech;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("LOCAL_COMERCIAL")
 public class LocalComercial extends Inmueble{
     private boolean frenteCalle;
-    private String categoria; // "Comidas", "Ropa", "Mixto"
+    private String categoria;
+
+    public LocalComercial() {}
 
     public LocalComercial(String codigo, String direccion, String ciudad, String barrioZona, String finalidad, double precio,
             double area, int habitaciones, int baños, String estado, boolean disponibilidad, Asesor asesorResponsable, boolean frenteCalle, String categoria){

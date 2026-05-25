@@ -2,6 +2,10 @@ package co.edu.uniquindio.proptech;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "operaciones")
 public class Operacion implements Comparable<Operacion>{
     public static final String TIPO_VENTA = "Venta";
     public static final String TIPO_ARRIENDO = "Arriendo";
@@ -12,16 +16,28 @@ public class Operacion implements Comparable<Operacion>{
     public static final String ESTADO_FINALIZADO = "Finalizado";
     public static final String ESTADO_CAIDO = "Caído/revertido";
 
+    @Id
     private String id;
-    private Inmueble inmuebleRelacionado;
-    private Cliente cliente;
-    private Asesor asesor;
-    private LocalDate fecha;
     private String tipoOperacion;
+    private LocalDate fecha;
     private double valorAcordado;
     private double comision;
     private String estadoProceso;
-    
+
+    @ManyToOne
+    @JoinColumn(name = "inmueble_codigo")
+    private Inmueble inmuebleRelacionado;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "asesor_id")
+    private Asesor asesor;
+
+    public Operacion() {}
+
     public Operacion(String id, Inmueble inmuebleRelacionado, Cliente cliente, Asesor asesor, LocalDate fecha, String tipoOperacion, double valorAcordado, double porcentajeComision){
         this.id = id;
         this.inmuebleRelacionado = inmuebleRelacionado;
@@ -30,14 +46,12 @@ public class Operacion implements Comparable<Operacion>{
         this.fecha = fecha;
         this.tipoOperacion = tipoOperacion;
         this.valorAcordado = valorAcordado;
-
         this.comision = valorAcordado * (porcentajeComision / 100.0);
-        this.estadoProceso = ESTADO_EN_TRAMITE; // Por defecto
+        this.estadoProceso = ESTADO_EN_TRAMITE;
     }
 
     public void finalizarOperacion(){
         this.estadoProceso = ESTADO_FINALIZADO;
-        // Si es venta o arriendo, el inmueble deja de estar disponible
         if(tipoOperacion.equals(TIPO_VENTA) || tipoOperacion.equals(TIPO_ARRIENDO)){
             this.inmuebleRelacionado.setDisponibilidad(false);
         }
@@ -48,33 +62,15 @@ public class Operacion implements Comparable<Operacion>{
         this.inmuebleRelacionado.setDisponibilidad(true);
     }
 
-    public String getId() {
-        return id;
-    }
-    public Inmueble getInmuebleRelacionado() {
-        return inmuebleRelacionado;
-    }
-    public Cliente getCliente() {
-        return cliente;
-    }
-    public Asesor getAsesor() {
-        return asesor;
-    }
-    public LocalDate getFecha() {
-        return fecha;
-    }
-    public String getTipoOperacion() {
-        return tipoOperacion;
-    }
-    public double getValorAcordado() {
-        return valorAcordado;
-    }
-    public double getComision() {
-        return comision;
-    }
-    public String getEstadoProceso() {
-        return estadoProceso;
-    }
+    public String getId() { return id; }
+    public Inmueble getInmuebleRelacionado() { return inmuebleRelacionado; }
+    public Cliente getCliente() { return cliente; }
+    public Asesor getAsesor() { return asesor; }
+    public LocalDate getFecha() { return fecha; }
+    public String getTipoOperacion() { return tipoOperacion; }
+    public double getValorAcordado() { return valorAcordado; }
+    public double getComision() { return comision; }
+    public String getEstadoProceso() { return estadoProceso; }
 
     @Override
     public int compareTo(Operacion otraOperacion) {
