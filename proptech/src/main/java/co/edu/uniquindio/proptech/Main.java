@@ -2,7 +2,14 @@ package co.edu.uniquindio.proptech;
 
 import java.time.LocalDate;
 
-import co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList;
+import co.edu.uniquindio.proptech.EstructuraDatos.LinkedSimpleList.LinkedSimpleList;
+import co.edu.uniquindio.proptech.model.Apartamento;
+import co.edu.uniquindio.proptech.model.Asesor;
+import co.edu.uniquindio.proptech.model.Cliente;
+import co.edu.uniquindio.proptech.model.Inmueble;
+import co.edu.uniquindio.proptech.model.LocalComercial;
+import co.edu.uniquindio.proptech.model.Visita;
+import co.edu.uniquindio.proptech.services.Inmobiliaria;
 
 public class Main {
     public static void main(String[] args) {
