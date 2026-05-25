@@ -587,6 +587,98 @@ public class PropTechController {
         return "redirect:/";
     }
 
+    @PostMapping("/analizar-comportamiento")
+    public String analizarComportamiento(HttpSession session, RedirectAttributes redirectAttrs) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null)
+            return "redirect:/login";
+
+        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<Cliente> clientesPrioritarios = plataforma
+                .detectarClientesAltaPrioridad();
+        int cantidad = clientesPrioritarios.getSize();
+
+        if (cantidad > 0) {
+            redirectAttrs.addFlashAttribute("mensajeInfo",
+                    "Se detectaron " + cantidad + " clientes de alta prioridad para seguimiento.");
+        } else {
+            redirectAttrs.addFlashAttribute("mensajeInfo",
+                    "No se detectaron clientes de alta prioridad en este momento.");
+        }
+        return "redirect:/";
+    }
+
+    @PostMapping("/buscar-inmuebles")
+    public String buscarInmuebles(@RequestParam String zona, @RequestParam double precioMax,
+            @RequestParam double precioMin, @RequestParam int minHabitaciones, HttpSession session,
+            RedirectAttributes redirectAttrs) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null)
+            return "redirect:/login";
+
+        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<Inmueble> resultados = plataforma
+                .buscarInmuebleConFiltros(precioMin, precioMax, zona, minHabitaciones);
+        List<Map<String, String>> listaResultados = convertirListaInmuebles(resultados);
+
+        redirectAttrs.addFlashAttribute("listaResultadosBusquedaObj", listaResultados);
+        redirectAttrs.addFlashAttribute("mostrarModalBusqueda", true);
+        redirectAttrs.addFlashAttribute("idAsociadoActual", usuarioLogueado.getIdAsociado());
+
+        if (listaResultados.isEmpty()) {
+            redirectAttrs.addFlashAttribute("mensajeInfo", "No se encontraron inmuebles con esos filtros.");
+        } else {
+            redirectAttrs.addFlashAttribute("mensajeExito", listaResultados.size() + " inmuebles encontrados.");
+        }
+
+        return "redirect:/";
+    }
+
+    @PostMapping("/generar-recomendaciones")
+    public String generarRecomendaciones(@RequestParam String idCliente, HttpSession session,
+            RedirectAttributes redirectAttrs) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null)
+            return "redirect:/login";
+
+        Cliente cliente = plataforma.buscarClientePorId(idCliente);
+        if (cliente == null) {
+            redirectAttrs.addFlashAttribute("mensajeError", "Cliente no encontrado.");
+            return "redirect:/";
+        }
+
+        co.edu.uniquindio.proptech.LinkedSimpleList.LinkedSimpleList<Inmueble> recomendaciones = plataforma
+                .generarRecomendaciones(idCliente);
+        List<Map<String, String>> listaRecomendaciones = convertirListaInmuebles(recomendaciones);
+
+        redirectAttrs.addFlashAttribute("clienteReco", cliente.getNombre());
+        redirectAttrs.addFlashAttribute("listaSugerenciasObj", listaRecomendaciones);
+        redirectAttrs.addFlashAttribute("mostrarModalRecos", true);
+
+        if (listaRecomendaciones.isEmpty()) {
+            redirectAttrs.addFlashAttribute("mensajeInfo", "No hay recomendaciones disponibles para este cliente.");
+        }
+        return "redirect:/";
+    }
+
+    @PostMapping("/registrar-cliente")
+    public String registrarCliente(@RequestParam String identificacion, @RequestParam String nombre,
+            @RequestParam String correo, @RequestParam String telefono, @RequestParam String tipoCliente,
+            @RequestParam double presupuesto, @RequestParam String tipoInmuebleDeseado,
+            @RequestParam int minHabitaciones, HttpSession session, RedirectAttributes redirectAttrs) {
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null)
+            return "redirect:/login";
+
+        Cliente nuevoCliente = new Cliente(identificacion, nombre, correo, telefono, tipoCliente, presupuesto,
+                tipoInmuebleDeseado, minHabitaciones);
+
+        if (plataforma.registrarCliente(nuevoCliente)) {
+            redirectAttrs.addFlashAttribute("mensajeExito", "Cliente registrado con éxito.");
+        } else {
+            redirectAttrs.addFlashAttribute("mensajeError", "Ya existe un cliente con esa identificación.");
+        }
+        return "redirect:/";
+    }
+
     // =====================================================================================
     // 5. UTILIDADES (TAREAS Y DESHACER)
     // =====================================================================================
