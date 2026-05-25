@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Maven: spring-boot:run",
+      "type": "shell",
+      "command": "mvn spring-boot:run -Dspring-boot.run.main-class=co.edu.uniquindio.proptech.ProptechApplication",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}

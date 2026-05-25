@@ -1,0 +1,24 @@
+# Maven build output
+**/target/
+*.jar
+*.lst
+
+# Eclipse / IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven wrapper log
+mvnw.cmd.*
+
+# Internal upgrade metadata
+.github/java-upgrade/
+
+# Temporary files
+*.log
+*~
